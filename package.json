@@ -1,0 +1,61 @@
+{
+  "name": "fhenix-hardhat-example",
+  "version": "1.0.0",
+  "description": "An example repository to get you started with Fhenix development",
+  "scripts": {
+    "test": "hardhat test",
+    "clean": "rimraf ./artifacts ./cache ./coverage ./types ./coverage.json ./deployments/localfhenix",
+    "compile": "hardhat compile",
+    "task:deploy": "hardhat deploy",
+    "task:addCount": "hardhat task:addCount",
+    "task:getCount": "hardhat task:getCount",
+    "task:getFunds": "hardhat task:getFunds",
+    "localfhenix:start": "hardhat localfhenix:start",
+    "localfhenix:stop": "hardhat localfhenix:stop",
+    "faucet": "hardhat task:fhenix:usefaucet"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fhenixprotocol/fhenix-hardhat-example.git"
+  },
+  "author": "Fhenix",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fhenixprotocol/fhenix-hardhat-example/issues"
+  },
+  "homepage": "https://github.com/fhenixprotocol/fhenix-hardhat-example#readme",
+  "devDependencies": {
+    "@fhenixprotocol/contracts": "^0.1.0-beta.3",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
+    "@nomicfoundation/hardhat-ethers": "^3.0.5",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.4",
+    "@openzeppelin/contracts": "^5.0.1",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "@types/chai": "^4.3.11",
+    "@types/fs-extra": "^11.0.4",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.19",
+    "axios": "^1.6.7",
+    "chai": "^4.3.7",
+    "chalk": "^4.1.2",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.11.1",
+    "fhenix-hardhat-docker": "^0.1.1",
+    "fhenix-hardhat-plugin": "^0.1.1",
+    "hardhat": "^2.20.1",
+    "hardhat-deploy": "^0.11.45",
+    "hardhat-gas-reporter": "^1.0.10",
+    "mocha": "^10.3.0",
+    "rimraf": "^5.0.5",
+    "solidity-coverage": "^0.8.7",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "fhenixjs": "^0.1.0-beta.6"
+  }
+}

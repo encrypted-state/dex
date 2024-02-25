@@ -1,0 +1,10 @@
+image: "gitpod/workspace-node-lts:latest"
+
+tasks:
+  - init: "pnpm install && pnpm hardhat localfhenix:start"
+
+vscode:
+  extensions:
+    - "esbenp.prettier-vscode"
+    - "NomicFoundation.hardhat-solidity"
+    - "ritwickdey.LiveServer"
