@@ -2,6 +2,8 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import chalk from "chalk";
 
+// npx hardhat deploy --network testnet
+
 const hre = require("hardhat");
 
 const func: DeployFunction = async function () {
