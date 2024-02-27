@@ -1,7 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Swap from "./components/views/swap";
 
 export default function Home() {
-  return <Swap />;
+  const router = useRouter();
+  router.replace("/swap");
+  return <></>;
 }
