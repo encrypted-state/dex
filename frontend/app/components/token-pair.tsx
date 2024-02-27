@@ -21,12 +21,77 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/app/components/ui/popover";
+import { useState } from "react";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "./ui/command";
 
-const TokenButton = () => {
+const tokens = [
+  {
+    symbol: "ETH",
+    address: "pending",
+  },
+  {
+    symbol: "DAI",
+    address: "pending",
+  },
+  {
+    symbol: "USDC",
+    address: "pending",
+  },
+];
+
+type Token = { symbol: string; address: string };
+
+const TokenSwitcher = () => {
+  const [open, setOpen] = useState<boolean>(false);
+  const [selectedToken, setSelectedToken] = useState<Token>(tokens[0]);
   return (
-    <Button variant={"outline"} className="w-24 rounded-full font-bold">
-      ETH
-    </Button>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          size={"sm"}
+          className="w-[150px] rounded-full font-bold"
+        >
+          {selectedToken.symbol}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[320px] p-0">
+        <Command>
+          <CommandInput placeholder="Search by token name or address"></CommandInput>
+          <CommandList>
+            <CommandEmpty>No tokens found.</CommandEmpty>
+            <CommandGroup heading="Suggested">
+              {tokens.map((token, i) => (
+                <CommandItem
+                  onSelect={() => {
+                    setSelectedToken(token);
+                    setOpen(false);
+                  }}
+                  key={i}
+                >
+                  {token.symbol}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 };
 
@@ -52,7 +117,7 @@ const TokenCard = ({
         />
         <Dialog>
           <DialogTrigger asChild>
-            <TokenButton />
+            <TokenSwitcher />
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
