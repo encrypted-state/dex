@@ -39,7 +39,9 @@ const TokenCard = ({
 }) => (
   <Card className={` dark:bg-zinc-900 dark:border-0 ${className}`}>
     <CardHeader className={`p-5 pb-1`}>
-      <CardTitle className="text-base font-medium">You {type}</CardTitle>
+      <CardTitle className="text-base font-medium text-zinc-700 dark:text-zinc-300">
+        You {type}
+      </CardTitle>
     </CardHeader>
     <CardContent className="px-5 pb-4">
       <div className="flex flex-row gap-2 pb-2">
