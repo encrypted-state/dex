@@ -3,12 +3,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const queryClient = new QueryClient();
+import { ThemeProvider } from "@/app/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
-import { WagmiProvider } from "wagmi";
-import { config } from "@/lib/wagmi-config";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Web3Provider } from "./components/web3-provider";
 export default function RootLayout({
   children,
@@ -18,7 +15,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Web3Provider>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </body>
       </Web3Provider>
     </html>
   );
