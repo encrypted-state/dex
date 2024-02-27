@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 import { Web3Provider } from "./components/web3-provider";
 import { ModeToggle } from "./components/mode-toggle";
 import { ConnectButton } from "./components/connect-button";
+import Navbar from "./navbar";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,9 +25,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <ConnectButton />
-            <ModeToggle />
-            {children}
+            <Navbar />
+            <main className="w-full max-w-[800px]  flex flex-col  items-center mx-auto">
+              {children}
+            </main>
           </ThemeProvider>
         </body>
       </Web3Provider>
