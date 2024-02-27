@@ -5,13 +5,14 @@ const hre = require("hardhat");
 async function getCounter() {
   const accounts = await hre.ethers.getSigners();
   const contractOwner = accounts[0];
-  // ERC20 deployed to: 0x86b0b98CBF9535eeA71025256b17E85864ac5eb4
-  // ERC20 deployed to: 0xb8D6a377800B2B45Efa620b986AE4eE00C389515
-  // AMM deployed to: 0x86791902CD0ADeF51092361C4F1742d9Fe020FB3
 
-  const token1Address = "0x86b0b98CBF9535eeA71025256b17E85864ac5eb4";
-  const token2Address = "0xb8D6a377800B2B45Efa620b986AE4eE00C389515";
-  const contractAddress = "0x86791902CD0ADeF51092361C4F1742d9Fe020FB3";
+  //   ERC20 deployed to: 0xbD588697710EFC816290ec916878CAadDD7BAd80
+  //   ERC20 deployed to: 0xBfA033992417ba2bC1382b1069427C6Ba586cc73
+  //   AMM deployed to: 0x061b6754C1DcA6b9A51fd82D3A5669c99dEA6088
+
+  const token1Address = "0xCc8694BbAeFEAc5808dA75083cB9f67eCdE629A9";
+  const token2Address = "0x715F5fB93606b47718765e233c316c2959980D40";
+  const contractAddress = "0x9270a14105D0f8a65FEc0C7C26d483F36930c5f2";
   const provider = hre.ethers.provider;
   const instance = new FhenixClient({ provider });
 
@@ -35,10 +36,17 @@ async function getCounter() {
   mint2.wait();
   console.log("token2 minted");
 
-  const lpmint = await AMM["mint(address)"](contractOwner);
+  const initialize = await AMM._initialize(token1Address, token2Address);
+  initialize.wait();
+
+  console.log("AMM initialized");
+
+  const lpmint = await AMM["mint(address)"](contractOwner.address);
   lpmint.wait();
 
-  const eBalance = await AMM.balanceOfSealed(contractAddress, permission);
+  console.log("LP minted");
+
+  const eBalance = await AMM.balanceOfSealed(contractOwner.address, permission);
   const balance = instance.unseal(contractAddress, eBalance);
   console.log("balance: ", balance);
 
