@@ -18,9 +18,7 @@ const Swap = () => {
     <div className="w-96">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-medium text-zinc-300">
-            You pay
-          </CardTitle>
+          <CardTitle className="text-base font-medium ">You pay</CardTitle>
         </CardHeader>
         <CardContent>
           <Input placeholder="0" type="number" min={0} />
@@ -31,9 +29,7 @@ const Swap = () => {
       </Button>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-medium text-zinc-300">
-            You receive
-          </CardTitle>
+          <CardTitle className="text-base font-medium ">You receive</CardTitle>
         </CardHeader>
         <CardContent>
           <Input placeholder="0" type="number" min={0} />
