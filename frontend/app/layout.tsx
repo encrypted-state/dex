@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 import { WagmiProvider } from "wagmi";
 import { config } from "@/lib/wagmi-config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Web3Provider } from "./components/web3-provider";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -16,11 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <body className={inter.className}>{children}</body>
-        </QueryClientProvider>
-      </WagmiProvider>
+      <Web3Provider>
+        <body className={inter.className}>{children}</body>
+      </Web3Provider>
     </html>
   );
 }
