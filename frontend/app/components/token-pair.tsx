@@ -20,6 +20,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import { cn } from "@/lib/utils";
+
+const TokenButton = () => {
+  return (
+    <Button variant={"outline"} className="w-24 rounded-full font-bold">
+      ETH
+    </Button>
+  );
+};
 
 const TokenCard = ({
   type,
@@ -28,25 +37,31 @@ const TokenCard = ({
   type: "receive" | "pay" | "provide";
   className?: string;
 }) => (
-  <Card className={`dark:bg-zinc-900 dark:border-0 ${className}`}>
-    <CardHeader>
-      <CardTitle className="text-base font-medium ">You {type}</CardTitle>
+  <Card className={` dark:bg-zinc-900 dark:border-0 ${className}`}>
+    <CardHeader className={`p-5 pb-1`}>
+      <CardTitle className="text-base font-medium">You {type}</CardTitle>
     </CardHeader>
-    <CardContent className="flex flex-row gap-2">
-      <Input placeholder="0" type="number" min={0} />
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant={"outline"} className="w-24 rounded-full">
-            ETH
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>tokens</DialogTitle>
-            <DialogDescription>tokens</DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+    <CardContent className="px-5 pb-4">
+      <div className="flex flex-row gap-2 pb-2">
+        <Input
+          className="bg-transparent text-3xl border-0 p-0 "
+          placeholder="0"
+          type="number"
+          min={0}
+        />
+        <Dialog>
+          <DialogTrigger asChild>
+            <TokenButton />
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>tokens</DialogTitle>
+              <DialogDescription>tokens</DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      </div>
+      {/* <p className="p-0 text-sm text-zinc-500">(estimated market value here)</p> */}
     </CardContent>
   </Card>
 );
