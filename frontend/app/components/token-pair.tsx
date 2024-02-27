@@ -44,9 +44,8 @@ const TokenCard = ({
     <CardContent className="px-5 pb-4">
       <div className="flex flex-row gap-2 pb-2">
         <Input
-          className="bg-transparent text-3xl border-0 p-0 "
+          className="bg-transparent text-3xl border-0 p-0 focus-visible:ring-0 focus-visible:border-0 focus-visible:outline-none focus-visible:ring-offset-0"
           placeholder="0"
-          type="number"
           min={0}
         />
         <Dialog>
