@@ -4,9 +4,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/app/components/theme-provider";
-
+import { ConnectKitButton } from "connectkit";
 const inter = Inter({ subsets: ["latin"] });
 import { Web3Provider } from "./components/web3-provider";
+import { ModeToggle } from "./components/mode-toggle";
+import { ConnectButton } from "./components/connect-button";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,6 +24,8 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <ConnectButton />
+            <ModeToggle />
             {children}
           </ThemeProvider>
         </body>
