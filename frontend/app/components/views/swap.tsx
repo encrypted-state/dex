@@ -10,7 +10,10 @@ import {
 } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { ArrowDown } from "lucide-react";
+import { useAccount } from "wagmi";
+import { ConnectButton } from "../connect-button";
 const Swap = () => {
+  const { isConnected } = useAccount();
   return (
     <div className="w-96">
       <Card>
@@ -36,9 +39,13 @@ const Swap = () => {
           <Input placeholder="0" type="number" min={0} />
         </CardContent>
       </Card>
-      <Button className="w-full text-base mt-4" size={"lg"}>
-        Swap
-      </Button>
+      {isConnected ? (
+        <Button className="w-full text-base mt-4" size={"lg"}>
+          Swap
+        </Button>
+      ) : (
+        <ConnectButton size={"lg"} className="w-full text-base mt-4" />
+      )}
     </div>
   );
 };
