@@ -10,7 +10,7 @@ import { euint32, inEuint32 } from "@fhenixprotocol/contracts/FHE.sol";
 /**
  * @dev Interface of the ERC-20 standard as defined in the ERC.
  */
-interface IFhERC20 {
+interface IFHERC20 {
     /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to
      * another (`to`).
