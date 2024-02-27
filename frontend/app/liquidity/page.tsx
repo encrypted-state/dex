@@ -1,5 +1,7 @@
 "use client";
 
+import TokenPair from "../components/token-pair";
+
 export default function LiquidityPage() {
-  return <p>liquidity</p>;
+  return <TokenPair type={"liquidity"} />;
 }
