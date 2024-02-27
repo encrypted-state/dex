@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 // Inspired by OpenZeppelin (https://github.com/OpenZeppelin/openzeppelin-contracts) (token/ERC20/IERC20.sol)
 
 import { Permission, Permissioned } from "@fhenixprotocol/contracts/access/Permissioned.sol";
-import { euint32, inEuint32 } from "@fhenixprotocol/contracts/FHE.sol";
+import { euint16, inEuint16 } from "@fhenixprotocol/contracts/FHE.sol";
 
 /**
  * @dev Interface of the ERC-20 standard as defined in the ERC.
@@ -33,7 +33,7 @@ interface IFHERC20 {
     /**
      * @dev Returns the value of tokens owned by `account`, sealed and encrypted for the caller.
      */
-    function balanceOfEncrypted(address account, Permission memory auth) external view returns (bytes memory);
+    function balanceOfEncrypted() external view returns (euint16);
 
     /**
      * @dev Moves a `value` amount of tokens from the caller's account to `to`.
@@ -42,8 +42,8 @@ interface IFHERC20 {
      *
      * Emits a {TransferEncrypted} event.
      */
-    function transferEncrypted(address to, inEuint32 calldata value) external returns (euint32);
-    function transferEncrypted(address to, euint32 value) external returns (euint32);
+    function transferEncrypted(address to, inEuint16 calldata value) external returns (euint16);
+    function transferEncrypted(address to, euint16 value) external returns (euint16);
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be
@@ -69,7 +69,6 @@ interface IFHERC20 {
      *
      * Emits an {ApprovalEncrypted} event.
      */
-    function approveEncrypted(address spender, inEuint32 calldata value) external returns (bool);
 
     /**
      * @dev Moves a `value` amount of tokens from `from` to `to` using the
@@ -80,6 +79,6 @@ interface IFHERC20 {
      *
      * Emits a {TransferEncrypted} event.
      */
-    function transferFromEncrypted(address from, address to, inEuint32 calldata value) external returns (euint32);
-    function transferFromEncrypted(address from, address to, euint32 value) external returns (euint32);
+    function transferFromEncrypted(address from, address to, inEuint16 calldata value) external returns (euint16);
+    function transferFromEncrypted(address from, address to, euint16 value) external returns (euint16);
 }

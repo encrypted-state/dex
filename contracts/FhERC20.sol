@@ -103,6 +103,11 @@ contract FHERC20 is IFHERC20, ERC20, Permissioned {
         totalEncryptedSupply = totalEncryptedSupply + amount;
     }
 
+    function mintEncryptedTo(address to, euint16 encryptedAmount) public {
+        _encBalances[to] = _encBalances[to] + encryptedAmount;
+        totalEncryptedSupply = totalEncryptedSupply + encryptedAmount;
+    }
+
     function transferEncrypted(address to, inEuint16 calldata encryptedAmount) public returns (euint16) {
         return transferEncrypted(to, FHE.asEuint16(encryptedAmount));
     }
