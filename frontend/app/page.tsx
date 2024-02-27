@@ -1,7 +1,14 @@
 "use client";
 import Image from "next/image";
+import { useAccount, useEnsName } from "wagmi";
 
 export default function Home() {
+  const { address } = useAccount();
+  const { data, error, status } = useEnsName({ address });
+  if (status === "pending") return <div>Loading ENS name</div>;
+  if (status === "error")
+    return <div>Error fetching ENS name: {error.message}</div>;
+  return <div>ENS name: {data}</div>;
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
