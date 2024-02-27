@@ -6,7 +6,7 @@ export const ConnectButton = ({
   className,
   size,
 }: {
-  className: string;
+  className?: string;
   size?: "default" | "sm" | "lg" | "icon" | null | undefined;
 }) => {
   return (

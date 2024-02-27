@@ -6,5 +6,5 @@ import Swap from "./components/views/swap";
 export default function Home() {
   const router = useRouter();
   router.replace("/swap");
-  return <></>;
+  return <Swap />;
 }

@@ -22,7 +22,11 @@ import {
 } from "../ui/dialog";
 
 const SwapCard = ({ type }: { type: "receive" | "pay" }) => (
-  <Card className={`bg-zinc-900 border-0 ${type === "receive" && "-mt-5"}`}>
+  <Card
+    className={`dark:bg-zinc-900 dark:border-0 ${
+      type === "receive" && "-mt-5"
+    }`}
+  >
     <CardHeader>
       <CardTitle className="text-base font-medium ">You {type}</CardTitle>
     </CardHeader>
@@ -47,7 +51,7 @@ const SwapCard = ({ type }: { type: "receive" | "pay" }) => (
 
 const SwapSwitchButton = () => (
   <Button
-    className="m-auto bg-zinc-900 border-zinc-950 border-4 rounded-xl -mt-7 mx-auto"
+    className=" dark:bg-zinc-900 dark:border-zinc-950 dark:border-4 rounded-xl relative -mt-7"
     variant="outline"
     size="icon"
   >
