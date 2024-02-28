@@ -39,27 +39,7 @@ import {
   CommandShortcut,
 } from "./ui/command";
 import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
-
-const tokens = [
-  {
-    symbol: "ETH",
-    address: "pending",
-    image:
-      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png",
-  },
-  {
-    symbol: "DAI",
-    address: "pending",
-    image:
-      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/UVVKGPI6U5CDXFAIVCLHODHZ6M.png",
-  },
-  {
-    symbol: "USDC",
-    address: "pending",
-    image:
-      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/7ZYCGPG5DFFPJNTEDNPUE75AJY.png",
-  },
-];
+import { tokens } from "@/lib/tokens";
 
 type Token = { symbol: string; address: string; image?: string };
 
