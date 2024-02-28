@@ -13,12 +13,27 @@ import {
   NavigationMenuViewport,
   navigationMenuTriggerStyle,
 } from "@/app/components/ui/navigation-menu";
+import NextLink from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
   return (
-    <div id="navbar" className="flex justify-between p-2 mb-6">
+    <div id="navbar" className="flex justify-between p-4 mb-6">
       <NavigationMenu>
         <NavigationMenuList>
+          <NavigationMenuItem className="ml-2 mr-4">
+            <Link href="/">
+              <Image
+                className="relative transform duration-150 hover:scale-110 hover:-rotate-1"
+                src="/invisiswap.svg"
+                alt="Invisiswap Logo"
+                width={60}
+                height={36}
+                priority
+              />
+            </Link>
+          </NavigationMenuItem>
           <NavigationMenuItem>
             <Link href={"/"}>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
