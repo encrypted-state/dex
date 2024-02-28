@@ -156,7 +156,7 @@ const TokenCard = ({
 
 const SwapSwitchButton = () => (
   <Button
-    className=" dark:bg-zinc-900 dark:border-zinc-950 dark:border-4 rounded-xl relative -mt-7"
+    className=" dark:bg-zinc-900 dark:border-zinc-950 dark:border-4 rounded-xl relative -mt-6"
     variant="outline"
     size="icon"
   >
@@ -165,13 +165,9 @@ const SwapSwitchButton = () => (
 );
 
 const ProvideLiquidityMiddleButton = () => (
-  <Button
-    className=" dark:bg-zinc-900 dark:border-zinc-950 dark:border-4 rounded-xl relative -mt-7"
-    variant="outline"
-    size="icon"
-  >
+  <div className=" dark:bg-zinc-900 dark:border-zinc-950 dark:border-4 rounded-xl relative -mt-6 h-10 w-10 flex flex-row items-center align-middle justify-center">
     <Plus />
-  </Button>
+  </div>
 );
 
 const MainButton = ({ type }: { type: "swap" | "liquidity" }) => {
@@ -192,7 +188,14 @@ const MainButton = ({ type }: { type: "swap" | "liquidity" }) => {
 const TokenPair = ({ type }: { type: "swap" | "liquidity" }) => (
   <div className="w-[450px]">
     <TokenCard type={type === "liquidity" ? "provide" : "pay"} />
-    {type === "swap" ? <SwapSwitchButton /> : <ProvideLiquidityMiddleButton />}
+
+    <div className="w-full  flex flex-row items-center justify-center h-6">
+      {type === "swap" ? (
+        <SwapSwitchButton />
+      ) : (
+        <ProvideLiquidityMiddleButton />
+      )}
+    </div>
 
     <TokenCard
       className="-mt-5"
