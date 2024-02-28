@@ -39,9 +39,7 @@ import {
   CommandShortcut,
 } from "./ui/command";
 import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
-import { tokens } from "@/lib/tokens";
-
-type Token = { symbol: string; address: string; image?: string };
+import { Token, tokens } from "@/lib/tokens";
 
 const TokenSelector = ({
   selectedToken,
