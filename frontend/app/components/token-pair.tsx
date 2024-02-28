@@ -39,29 +39,7 @@ import {
   CommandShortcut,
 } from "./ui/command";
 import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
-
-const tokens = [
-  {
-    symbol: "ETH",
-    address: "pending",
-    image:
-      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png",
-  },
-  {
-    symbol: "DAI",
-    address: "pending",
-    image:
-      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/UVVKGPI6U5CDXFAIVCLHODHZ6M.png",
-  },
-  {
-    symbol: "USDC",
-    address: "pending",
-    image:
-      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/7ZYCGPG5DFFPJNTEDNPUE75AJY.png",
-  },
-];
-
-type Token = { symbol: string; address: string; image?: string };
+import { Token, tokens } from "@/lib/tokens";
 
 const TokenSelector = ({
   selectedToken,
@@ -81,9 +59,9 @@ const TokenSelector = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant={"outline"}
+          variant={selectedToken ? "outline" : "default"}
           size={"sm"}
-          className="w-[180px] rounded-full font-semibold flex justify-between px-2"
+          className={`w-[180px] rounded-full font-semibold flex justify-between px-2`}
         >
           {selectedToken ? (
             <>
@@ -94,9 +72,9 @@ const TokenSelector = ({
               {selectedToken.symbol}
             </>
           ) : (
-            <>Select token</>
+            <span className="ml-1">Select token</span>
           )}
-          <ChevronDownIcon />
+          <ChevronDownIcon size={18} />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[320px] p-0">
@@ -203,11 +181,11 @@ const MainButton = ({ type }: { type: "swap" | "liquidity" }) => {
   return (
     <>
       {isConnected ? (
-        <Button className="w-full text-base mt-4" size={"lg"}>
+        <Button className="w-full text-base mt-1" size={"lg"}>
           {type === "swap" ? "Swap" : "Add"}
         </Button>
       ) : (
-        <ConnectButton size={"lg"} className="w-full text-base mt-4" />
+        <ConnectButton size={"lg"} className="w-full text-base mt-1" />
       )}
     </>
   );

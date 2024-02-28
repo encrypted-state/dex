@@ -1,4 +1,3 @@
-"use client";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -7,9 +6,10 @@ import { ThemeProvider } from "@/app/components/theme-provider";
 import { ConnectKitButton } from "connectkit";
 const inter = Inter({ subsets: ["latin"] });
 import { Web3Provider } from "./components/web3-provider";
-import { ModeToggle } from "./components/mode-toggle";
-import { ConnectButton } from "./components/connect-button";
 import Navbar from "./navbar";
+export const metadata: Metadata = {
+  title: "Invisiswap",
+};
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,7 +21,7 @@ export default function RootLayout({
         <body className={inter.className}>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >
