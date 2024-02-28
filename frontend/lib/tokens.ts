@@ -1,23 +1,16 @@
-export const tokens = [
+export type Token = {
+  symbol: string;
+  name: string;
+  address: "NATIVE" | `0x${string}`;
+  image?: string;
+};
+
+export const tokens: Array<Token> = [
   {
-    symbol: "ETH",
-    name: "Ether",
-    address: "pending",
+    symbol: "tFHE",
+    name: "Fhenix Tokens",
+    address: "NATIVE",
     image:
       "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png",
-  },
-  {
-    symbol: "DAI",
-    name: "DAI",
-    address: "pending",
-    image:
-      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/UVVKGPI6U5CDXFAIVCLHODHZ6M.png",
-  },
-  {
-    symbol: "USDC",
-    name: "USDC",
-    address: "pending",
-    image:
-      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/7ZYCGPG5DFFPJNTEDNPUE75AJY.png",
   },
 ];

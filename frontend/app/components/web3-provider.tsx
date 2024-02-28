@@ -7,13 +7,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { ThemeProvider } from "./theme-provider";
 
+import { fhenixfrontier } from "@/lib/custom-chains";
+
 const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
-    chains: [mainnet, sepolia],
+    chains: [fhenixfrontier],
     transports: {
-      [mainnet.id]: http(),
-      [sepolia.id]: http(),
+      [fhenixfrontier.id]: http(),
     },
     // Required API Keys
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,

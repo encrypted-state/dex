@@ -39,9 +39,7 @@ import {
   CommandShortcut,
 } from "./ui/command";
 import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
-import { tokens } from "@/lib/tokens";
-
-type Token = { symbol: string; address: string; image?: string };
+import { Token, tokens } from "@/lib/tokens";
 
 const TokenSelector = ({
   selectedToken,
@@ -183,11 +181,11 @@ const MainButton = ({ type }: { type: "swap" | "liquidity" }) => {
   return (
     <>
       {isConnected ? (
-        <Button className="w-full text-base mt-4" size={"lg"}>
+        <Button className="w-full text-base mt-1" size={"lg"}>
           {type === "swap" ? "Swap" : "Add"}
         </Button>
       ) : (
-        <ConnectButton size={"lg"} className="w-full text-base mt-4" />
+        <ConnectButton size={"lg"} className="w-full text-base mt-1" />
       )}
     </>
   );
