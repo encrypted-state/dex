@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
-import { ArrowDown, Plus } from "lucide-react";
+import { ArrowDown, CheckIcon, ChevronDownIcon, Plus } from "lucide-react";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "./connect-button";
 import {
@@ -38,23 +38,30 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "./ui/command";
+import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
 
 const tokens = [
   {
     symbol: "ETH",
     address: "pending",
+    image:
+      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png",
   },
   {
     symbol: "DAI",
     address: "pending",
+    image:
+      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/UVVKGPI6U5CDXFAIVCLHODHZ6M.png",
   },
   {
     symbol: "USDC",
     address: "pending",
+    image:
+      "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/7ZYCGPG5DFFPJNTEDNPUE75AJY.png",
   },
 ];
 
-type Token = { symbol: string; address: string };
+type Token = { symbol: string; address: string; image?: string };
 
 const TokenSwitcher = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -65,9 +72,14 @@ const TokenSwitcher = () => {
         <Button
           variant={"outline"}
           size={"sm"}
-          className="w-[150px] rounded-full font-bold"
+          className="w-[170px] rounded-full font-bold flex justify-between px-2"
         >
+          <Avatar className="w-6 h-6">
+            <AvatarImage src={selectedToken.image} />
+            <AvatarFallback>{selectedToken.symbol}</AvatarFallback>
+          </Avatar>
           {selectedToken.symbol}
+          <ChevronDownIcon />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[320px] p-0">
@@ -84,7 +96,17 @@ const TokenSwitcher = () => {
                   }}
                   key={i}
                 >
+                  <Avatar className="w-6 h-6 mr-2">
+                    <AvatarImage src={token.image} />
+                    <AvatarFallback>{token.symbol}</AvatarFallback>
+                  </Avatar>
                   {token.symbol}
+                  <CheckIcon
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      selectedToken === token ? "opacity-100" : "opacity-0",
+                    )}
+                  />
                 </CommandItem>
               ))}
             </CommandGroup>
