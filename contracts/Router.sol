@@ -59,7 +59,35 @@ contract Router {
     }
 
     /// @notice Swaps `amountIn` of one token for as much as possible of another token
-    function swapExactTokensForTokens() external {}
+    function swapExactTokensForTokens(
+        inEuint16 calldata amountIn, 
+        inEuint16 calldata amountOutMin, 
+        address[] calldata path, 
+        address to
+    ) external returns (euint16[] memory amounts) {
+        amounts = RouterLibrary.getAmountsOut(factory, amountIn, path);
+        FHE.req(FHE.gte(amounts[amounts.length - 1], amountOutMin)); // Ensure last amount is gte amountOutMin
+        _swap(amounts, path, to);  
+    }
+
+    function _swap(euint16[] memory amounts, address[] memory path, address to) internal {
+        for (uint i = 0; i < path.length - 1; i++) {
+            address token0 = path[i];
+            address token1 = path[i + 1];
+            euint16 amountOut = amounts[i + 1];
+
+            SwapPair pair = SwapPair(RouterLibrary.pairFor(factory, token0, token1));
+
+            // Determine if the current token to output is token0 or token1
+            bool isToken0Output = token0 < token1;
+
+            // Determine amounts for amount0Out and amount1Out based on the direction of the swap
+            euint16 amount0Out = FHE.select(isToken0Output, FHE.asEuint16(0), amountOut);
+            euint16 amount1Out = FHE.select(isToken0Output, amountOut, FHE.asEuint16(0));
+
+            pair.swap(amount0Out, amount1Out, to);
+        }
+    }
 
     function _calculateLiquidity(
         address tokenA, 
