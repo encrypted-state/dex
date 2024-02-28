@@ -63,22 +63,39 @@ const tokens = [
 
 type Token = { symbol: string; address: string; image?: string };
 
-const TokenSwitcher = () => {
+const TokenSelector = ({
+  selectedToken,
+  onSelectToken,
+  excludeToken,
+}: {
+  selectedToken: Token | null;
+  onSelectToken: (token: Token) => void;
+  excludeToken: Token | null;
+}) => {
   const [open, setOpen] = useState<boolean>(false);
-  const [selectedToken, setSelectedToken] = useState<Token>(tokens[0]);
+  const filteredTokens = tokens.filter(
+    (token) => !excludeToken || token.symbol !== excludeToken.symbol,
+  );
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           size={"sm"}
-          className="w-[170px] rounded-full font-bold flex justify-between px-2"
+          className="w-[180px] rounded-full font-semibold flex justify-between px-2"
         >
-          <Avatar className="w-6 h-6">
-            <AvatarImage src={selectedToken.image} />
-            <AvatarFallback>{selectedToken.symbol}</AvatarFallback>
-          </Avatar>
-          {selectedToken.symbol}
+          {selectedToken ? (
+            <>
+              <Avatar className="w-6 h-6">
+                <AvatarImage src={selectedToken.image} />
+                <AvatarFallback>{selectedToken.symbol}</AvatarFallback>
+              </Avatar>
+              {selectedToken.symbol}
+            </>
+          ) : (
+            <>Select token</>
+          )}
           <ChevronDownIcon />
         </Button>
       </PopoverTrigger>
@@ -88,10 +105,10 @@ const TokenSwitcher = () => {
           <CommandList>
             <CommandEmpty>No tokens found.</CommandEmpty>
             <CommandGroup heading="Suggested">
-              {tokens.map((token, i) => (
+              {filteredTokens.map((token, i) => (
                 <CommandItem
                   onSelect={() => {
-                    setSelectedToken(token);
+                    onSelectToken(token);
                     setOpen(false);
                   }}
                   key={i}
@@ -120,9 +137,15 @@ const TokenSwitcher = () => {
 const TokenCard = ({
   type,
   className,
+  selectedToken,
+  onSelectToken,
+  excludeToken,
 }: {
   type: "receive" | "pay" | "provide";
   className?: string;
+  selectedToken: Token | null;
+  onSelectToken: (token: Token) => void;
+  excludeToken: Token | null;
 }) => (
   <Card className={` dark:bg-zinc-900 dark:border-0 ${className}`}>
     <CardHeader className={`p-5 pb-1`}>
@@ -139,7 +162,11 @@ const TokenCard = ({
         />
         <Dialog>
           <DialogTrigger asChild>
-            <TokenSwitcher />
+            <TokenSelector
+              selectedToken={selectedToken}
+              onSelectToken={onSelectToken}
+              excludeToken={excludeToken}
+            />
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -154,11 +181,12 @@ const TokenCard = ({
   </Card>
 );
 
-const SwapSwitchButton = () => (
+const SwapSwitchButton = ({ onClick }: { onClick: () => void }) => (
   <Button
     className=" dark:bg-zinc-900 dark:border-zinc-950 dark:border-4 rounded-xl relative -mt-6"
     variant="outline"
     size="icon"
+    onClick={onClick}
   >
     <ArrowDown />
   </Button>
@@ -185,24 +213,43 @@ const MainButton = ({ type }: { type: "swap" | "liquidity" }) => {
   );
 };
 
-const TokenPair = ({ type }: { type: "swap" | "liquidity" }) => (
-  <div className="w-[450px]">
-    <TokenCard type={type === "liquidity" ? "provide" : "pay"} />
+const TokenPair = ({ type }: { type: "swap" | "liquidity" }) => {
+  const [topToken, setTopToken] = useState<Token>(tokens[0]);
+  const [bottomToken, setBottomToken] = useState<Token | null>(null);
 
-    <div className="w-full  flex flex-row items-center justify-center h-6">
-      {type === "swap" ? (
-        <SwapSwitchButton />
-      ) : (
-        <ProvideLiquidityMiddleButton />
-      )}
+  const switchTopAndBottomTokens = () => {
+    if (!bottomToken) return;
+    setTopToken(bottomToken);
+    setBottomToken(topToken);
+  };
+
+  return (
+    <div className="w-[450px]">
+      <TokenCard
+        type={type === "liquidity" ? "provide" : "pay"}
+        selectedToken={topToken}
+        onSelectToken={setTopToken}
+        excludeToken={bottomToken}
+      />
+
+      <div className="w-full  flex flex-row items-center justify-center h-6">
+        {type === "swap" ? (
+          <SwapSwitchButton onClick={switchTopAndBottomTokens} />
+        ) : (
+          <ProvideLiquidityMiddleButton />
+        )}
+      </div>
+
+      <TokenCard
+        className="-mt-5"
+        type={type === "liquidity" ? "provide" : "receive"}
+        selectedToken={bottomToken}
+        onSelectToken={setBottomToken}
+        excludeToken={topToken}
+      />
+      <MainButton type={type} />
     </div>
-
-    <TokenCard
-      className="-mt-5"
-      type={type === "liquidity" ? "provide" : "receive"}
-    />
-    <MainButton type={type} />
-  </div>
-);
+  );
+};
 
 export default TokenPair;
