@@ -14,7 +14,7 @@ library RouterLibrary {
         (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'Router: ZERO_ADDRESS');
     }
-    // calculates the CREATE2 address for a pair without making any external calls
+    // calls factory directly to retreive pair address
     function pairFor(address factory, address tokenA, address tokenB) internal view returns (address pair) {
         (address token0, address token1) = sortTokens(tokenA, tokenB); 
         pair = Factory(factory).getPair(token0, token1);
