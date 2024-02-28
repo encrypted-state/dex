@@ -41,31 +41,29 @@ contract SwapPair is Permissioned, FHERC20{
     }
 
     /// @notice not returning liquidity amount for privacy 
-    function mint(address to) external {
+    function mint(address to, euint16 _amount0, euint16 _amount1) external  returns(euint16 liquidity){
         (euint16 _reserve0, euint16 _reserve1) = getReserves();
-        euint16 balance0 = IFHERC20(token0).balanceOfEncrypted(address(this));
-        euint16 balance1 = IFHERC20(token1).balanceOfEncrypted(address(this));
-   
-        euint16 amount0 = FHE.sub(balance0, _reserve0);
-        euint16 amount1 = FHE.sub(balance1, _reserve1);
 
-        euint16 liquidity;
+   
+        euint16 amount0 = _amount0;
+        euint16 amount1 = _amount1;
         
         ebool isInitialLiquidity = FHE.eq(totalEncryptedSupply, FHE.asEuint16(0));
 
         liquidity = FHE.select(
             isInitialLiquidity, 
             FHE.asEuint16(
-                _sqrt(FHE.mul(amount0, amount1)) - MINIMUM_LIQUIDITY
+                _sqrt(FHE.mul(amount0,amount1))
             ), 
             _min(
                 FHE.div(FHE.mul(amount0, totalEncryptedSupply),reserve0), 
                 FHE.div(FHE.mul(amount1, totalEncryptedSupply),reserve1)
             )
         );
-        FHE.req(FHE.gt(liquidity, FHE.asEuint16(0)));
+        // FHE.req(FHE.gt(liquidity, FHE.asEuint16(0)));
         mintEncryptedTo(to, liquidity);
-        _update(balance0, balance1, _reserve0, _reserve1);
+        // _update(balance0, balance1, _reserve0, _reserve1);
+
 
         // emit Mint(msg.sender, amount0, amount1);
     }
@@ -146,6 +144,15 @@ contract SwapPair is Permissioned, FHERC20{
         return (reserve0, reserve1);
     }
 
+    function getRatios() external view returns (euint16 ratioAB, euint16 ratioBA) {
+        (euint16 _reserve0, euint16 _reserve1) = getReserves();
+         ebool isNotZero = FHE.or(reserve0.ne(FHE.asEuint16(0)), reserve1.ne(FHE.asEuint16(0)));
+        ratioAB = FHE.select(isNotZero, FHE.div(_reserve0, _reserve1),FHE.asEuint16(0));
+        ratioBA = FHE.select(isNotZero, FHE.div(_reserve1, _reserve0),FHE.asEuint16(0));
+    }
+
+
+//  TODO: fix
     // balances are not used, adjust as needed
     function _update(euint16 balance0, euint16 balance1, euint16 _reserve0, euint16 _reserve1) private {
         reserve0 = _reserve0;

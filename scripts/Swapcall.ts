@@ -2,26 +2,35 @@ import { FhenixClient, Permit, getPermit, removePermit } from "fhenixjs";
 
 const hre = require("hardhat");
 
-async function getCounter() {
+async function Swapcall() {
+  //STEPS:
+  //   DEPLOY ERC20
+  //   DEPLOY FACTORY
+  //   DEPLOY ROUTER
+  //   MINT ERC20
+  //   APPROVE TOKENS TRANSFER
+  //   CALL ADDLIQUIDITY
+  //   CHECK TOKENS BALANCE
+  //   CHECK LP BALANCE
+
   const accounts = await hre.ethers.getSigners();
   const contractOwner = accounts[0];
 
-  //   ERC20 deployed to: 0xbD588697710EFC816290ec916878CAadDD7BAd80
-  //   ERC20 deployed to: 0xBfA033992417ba2bC1382b1069427C6Ba586cc73
-  //   AMM deployed to: 0x061b6754C1DcA6b9A51fd82D3A5669c99dEA6088
+  // ERC20 deployed to: 0x5C19A1cA4CB8a638e5578D0f5432fecCE1B8946e
+  // ERC20 deployed to: 0xfeE9fF032366a5Ac61036688EDDd09b048d2aefE
+  // AMM deployed to: 0xD141bEB3F976eeaF301c61C3CD19CAC21EfeA619
+  // Router deployed to: 0xB5f4572983A8Dc787e04EAF4517793c7D30083aF
 
-  const token1Address = "0xCc8694BbAeFEAc5808dA75083cB9f67eCdE629A9";
-  const token2Address = "0x715F5fB93606b47718765e233c316c2959980D40";
-  const contractAddress = "0x9270a14105D0f8a65FEc0C7C26d483F36930c5f2";
+  const token1Address = "0x571111eA8f7F8a6C47b2A3880f4e8189A4345B87";
+  const token2Address = "0x558167667d2B57b7C5977518bD09D6614eafA8c1";
+  const factoryAddress = "0xd9592740135304fdF3DFEC6844A0778303a8650a";
+  const routerAddress = "0xB03664C040cfb554D5bd79d19e3bF6e5ba82f5be";
+  // const pairAddress = "0x9Bc6f65E6cFC2d4a45a96ab0358173966616C3c8";
   const provider = hre.ethers.provider;
   const instance = new FhenixClient({ provider });
 
-  const permit = await getPermit(contractAddress, provider);
-
-  instance.storePermit(permit);
-  const permission = instance.extractPermitPermission(permit);
-
-  const AMM = await hre.ethers.getContractAt("SwapPair", contractAddress);
+  const router = await hre.ethers.getContractAt("Router", routerAddress);
+  const factory = await hre.ethers.getContractAt("Factory", factoryAddress);
 
   const amount1 = await instance.encrypt_uint16(100);
   const amount2 = await instance.encrypt_uint16(100);
@@ -36,18 +45,43 @@ async function getCounter() {
   mint2.wait();
   console.log("token2 minted");
 
-  const initialize = await AMM._initialize(token1Address, token2Address);
-  initialize.wait();
+  const approve1 = await token1.approveEncrypted(factoryAddress, amount1);
+  approve1.wait();
+  console.log("token 1 approved");
 
-  console.log("AMM initialized");
+  const approve2 = await token2.approveEncrypted(factoryAddress, amount2);
+  approve2.wait();
 
-  const lpmint = await AMM["mint(address)"](contractOwner.address);
-  lpmint.wait();
+  console.log("token 2 approved");
 
-  console.log("LP minted");
+  const addLiquidity = await router.addLiquidity(
+    token1Address,
+    token2Address,
+    amount1,
+    amount2,
+    amount1,
+    amount2,
+    contractOwner.address,
+    { gasLimit: 900000000 },
+  );
+  addLiquidity.wait();
 
-  const eBalance = await AMM.balanceOfSealed(contractOwner.address, permission);
-  const balance = instance.unseal(contractAddress, eBalance);
+  console.log("liquidity added");
+
+  const pairAddress = await factory.getPair(token1Address, token2Address);
+
+  console.log("pairAddress", pairAddress);
+  const permit = await getPermit(pairAddress, provider);
+  instance.storePermit(permit);
+  const permission = instance.extractPermitPermission(permit);
+
+  const pair = await hre.ethers.getContractAt("SwapPair", pairAddress);
+
+  const eBalance = await pair.balanceOfSealed(
+    contractOwner.address,
+    permission,
+  );
+  const balance = instance.unseal(pairAddress, eBalance);
   console.log("balance: ", balance);
 
   //   console.log("LP total supply:", await AMM.getTotalSupply());
@@ -137,7 +171,7 @@ async function getCounter() {
 
 if (require.main === module) {
   // === This is for deploying a new diamond ===
-  getCounter()
+  Swapcall()
     .then(() => process.exit(0))
     .catch((error) => {
       console.error(error);
