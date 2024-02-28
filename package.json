@@ -12,7 +12,8 @@
     "task:getFunds": "hardhat task:getFunds",
     "localfhenix:start": "hardhat localfhenix:start",
     "localfhenix:stop": "hardhat localfhenix:stop",
-    "faucet": "hardhat task:fhenix:usefaucet"
+    "faucet": "hardhat task:fhenix:usefaucet",
+    "dev": "cd frontend && npm run dev"
   },
   "repository": {
     "type": "git",
