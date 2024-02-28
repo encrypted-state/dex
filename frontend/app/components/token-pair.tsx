@@ -81,9 +81,9 @@ const TokenSelector = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant={"outline"}
+          variant={selectedToken ? "outline" : "default"}
           size={"sm"}
-          className="w-[180px] rounded-full font-semibold flex justify-between px-2"
+          className={`w-[180px] rounded-full font-semibold flex justify-between px-2`}
         >
           {selectedToken ? (
             <>
@@ -94,9 +94,9 @@ const TokenSelector = ({
               {selectedToken.symbol}
             </>
           ) : (
-            <>Select token</>
+            <span className="ml-1">Select token</span>
           )}
-          <ChevronDownIcon />
+          <ChevronDownIcon size={18} />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[320px] p-0">
