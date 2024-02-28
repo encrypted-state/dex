@@ -20,7 +20,7 @@ const Navbar = () => {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <Link href={"/swap"}>
+            <Link href={"/"}>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Swap
               </NavigationMenuLink>
