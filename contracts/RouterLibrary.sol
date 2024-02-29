@@ -31,7 +31,7 @@ library RouterLibrary {
         amounts = new euint16[](path.length);
         amounts[0] = amountIn;
         for (uint i = 0; i < path.length - 1; i++) {
-            euint16 ratio = getRatio(factory, path[i], path[i] + 1);
+            euint16 ratio = getRatio(factory, path[i], path[i + 1]);
             amounts[i + 1] = getAmountOut(amounts[i], ratio);
         }
     } 
