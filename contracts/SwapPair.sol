@@ -62,7 +62,7 @@ contract SwapPair is Permissioned, FHERC20{
         );
         // FHE.req(FHE.gt(liquidity, FHE.asEuint16(0)));
         mintEncryptedTo(to, liquidity);
-        // _update(balance0, balance1, _reserve0, _reserve1);
+        _update(amount0, amount1);
 
 
         // emit Mint(msg.sender, amount0, amount1);
@@ -134,7 +134,7 @@ contract SwapPair is Permissioned, FHERC20{
         FHE.req(FHE.gte(productAfter, productBefore));  // K = reserve0 * reserve1 can only increase after the swap
 
         // Update reserves
-        _update(balance0, balance1, _reserve0, _reserve1);
+        // _update(balance0, balance1, _reserve0, _reserve1);
 
         // Emit an event with ciphertext values (still thinking about this)
         emit Swap(msg.sender, amount0Out, amount1Out, to);
@@ -144,19 +144,19 @@ contract SwapPair is Permissioned, FHERC20{
         return (reserve0, reserve1);
     }
 
-    function getRatios() external view returns (euint16 ratioAB, euint16 ratioBA) {
+    function getRatios(euint16 amountADesired, euint16 amountBDesired) external view returns (euint16 amountBOptimal, euint16 amountAOptimal) {
         (euint16 _reserve0, euint16 _reserve1) = getReserves();
          ebool isNotZero = FHE.or(reserve0.ne(FHE.asEuint16(0)), reserve1.ne(FHE.asEuint16(0)));
-        ratioAB = FHE.select(isNotZero, FHE.div(_reserve0, _reserve1),FHE.asEuint16(0));
-        ratioBA = FHE.select(isNotZero, FHE.div(_reserve1, _reserve0),FHE.asEuint16(0));
+        amountBOptimal = FHE.select(isNotZero, FHE.div(FHE.mul(_reserve1, amountADesired), _reserve0), FHE.asEuint16(0));
+        amountAOptimal = FHE.select(isNotZero, FHE.div(FHE.mul(_reserve0, amountBDesired), _reserve1), FHE.asEuint16(0));
     }
 
 
-//  TODO: fix
     // balances are not used, adjust as needed
-    function _update(euint16 balance0, euint16 balance1, euint16 _reserve0, euint16 _reserve1) private {
-        reserve0 = _reserve0;
-        reserve1 = _reserve1;
+    function _update(euint16 _amount0, euint16 _amount1) private {
+        reserve0 = reserve0 + _amount0;
+        reserve1 = reserve1 + _amount1;
+
     }
 
     function _sqrt(euint16 _y) private pure returns (uint16 z){

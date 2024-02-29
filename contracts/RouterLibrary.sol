@@ -21,10 +21,9 @@ library RouterLibrary {
     }
     
     // fetches and sorts the reserves for a pair
-    function getRatio(address factory, address tokenA, address tokenB) internal view returns (euint16 ratio) {
-        (address token0,) = sortTokens(tokenA, tokenB);
-        (euint16 ratioAB, euint16 ratioBA) = SwapPair(pairFor(factory, tokenA, tokenB)).getRatios();
-        ratio = tokenA == token0 ? ratioAB : ratioBA;
+    function getRatio(address factory, address tokenA, address tokenB, euint16 amountADesired, euint16 amountBDesired) internal view returns (euint16 amountBOptimal, euint16 amountAOptimal) {
+        (address token0, address token1) = sortTokens(tokenA, tokenB);
+        (amountBOptimal, amountAOptimal) = SwapPair(pairFor(factory, token0, token1)).getRatios(amountADesired, amountBDesired);
     }
 
     function getAmountsOut(address factory, euint16 amountIn, address[] memory path) internal view returns (euint16[] memory amounts) {

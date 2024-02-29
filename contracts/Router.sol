@@ -44,7 +44,7 @@ contract Router {
         IFHERC20(tokenB).transferFromEncrypted(msg.sender, pair, amountB);
 
         // mint LP tokens for user
-        liquidity = ISwapPair(pair).mint(to, amountA, amountB);
+        liquidity = SwapPair(pair).mint(to, amountA, amountB);
     }
 
     function removeLiquidity(
@@ -55,7 +55,7 @@ contract Router {
     ) public returns (euint16 amountA, euint16 amountB) {
         address pair = RouterLibrary.pairFor(address(factory), tokenA, tokenB);
         SwapPair(pair).transferFromEncrypted(msg.sender, pair, liquidity);
-        (amountA, amountB) = ISwapPair(pair).burn(to);
+        // (amountA, amountB) = SwapPair(pair).burn(to);
     }
 
     /// @notice Swaps `amountIn` of one token for as much as possible of another token
@@ -95,18 +95,13 @@ contract Router {
         euint16 amountADesired,
         euint16 amountBDesired
     ) internal view returns (euint16 amountA, euint16 amountB) {
-        euint16 ratio = RouterLibrary.getRatio(factory, tokenA, tokenB);
-        ebool isInitialLiquidity = FHE.eq(ratio, FHE.asEuint16(0));
-
-        euint16 amountBOptimal = FHE.mul(amountADesired, ratio);
-        euint16 inverseRatio = RouterLibrary.getRatio(factory, tokenB, tokenA);
-        euint16 amountAOptimal = FHE.mul(amountBDesired, inverseRatio);
+        (euint16 amountBOptimal, euint16 amountAOptimal) = RouterLibrary.getRatio(address(factory), tokenA, tokenB, amountADesired, amountBDesired);
 
         // Determine if it's the initial liquidity event
         // If it is, use the desired amounts directly
         // If not, use the calculated optimal amounts
-        amountA = FHE.select(isInitialLiquidity, amountADesired, amountAOptimal);
-        amountB = FHE.select(isInitialLiquidity, amountBDesired, amountBOptimal);
+        amountA = FHE.max(amountADesired, amountAOptimal);
+        amountB = FHE.max(amountBDesired, amountBOptimal);
 
         return (amountA, amountB);
     }
