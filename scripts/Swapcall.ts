@@ -16,15 +16,15 @@ async function Swapcall() {
   const accounts = await hre.ethers.getSigners();
   const contractOwner = accounts[0];
 
-  // ERC20 deployed to: 0x5C19A1cA4CB8a638e5578D0f5432fecCE1B8946e
-  // ERC20 deployed to: 0xfeE9fF032366a5Ac61036688EDDd09b048d2aefE
-  // AMM deployed to: 0xD141bEB3F976eeaF301c61C3CD19CAC21EfeA619
-  // Router deployed to: 0xB5f4572983A8Dc787e04EAF4517793c7D30083aF
+  // ERC20 deployed to: 0x88Ae075C0483c471F03d239e6E7a503bD3Bf133B
+  // ERC20 deployed to: 0x1e1b2A3094163fAE55eF1efCC7DECbEf638a5b80
+  // AMM deployed to: 0x2d768d26F9b3f7B588FDF7C8744825385B3aE1F0
+  // Router deployed to: 0x66508D54e296E523949e254a7CfE09Bf8b8094D2
 
-  const token1Address = "0x571111eA8f7F8a6C47b2A3880f4e8189A4345B87";
-  const token2Address = "0x558167667d2B57b7C5977518bD09D6614eafA8c1";
-  const factoryAddress = "0xd9592740135304fdF3DFEC6844A0778303a8650a";
-  const routerAddress = "0xB03664C040cfb554D5bd79d19e3bF6e5ba82f5be";
+  const token1Address = "0x19D4341C2C69081ef0BA7e6417E5B970f318b449";
+  const token2Address = "0x7a69D0860E103761C9D8820a43e8290E1E4519BE";
+  const factoryAddress = "0xCE2b5e2F21868E11a66d28a331c7FF11f9ECF0d0";
+  const routerAddress = "0x9f93A2e176e80d6D0795D29177c89A661192921b";
   // const pairAddress = "0x9Bc6f65E6cFC2d4a45a96ab0358173966616C3c8";
   const provider = hre.ethers.provider;
   const instance = new FhenixClient({ provider });
@@ -32,7 +32,7 @@ async function Swapcall() {
   const router = await hre.ethers.getContractAt("Router", routerAddress);
   const factory = await hre.ethers.getContractAt("Factory", factoryAddress);
 
-  const amount1 = await instance.encrypt_uint16(100);
+  const amount1 = await instance.encrypt_uint16(50);
   const amount2 = await instance.encrypt_uint16(100);
   const token1 = await hre.ethers.getContractAt("FHERC20", token1Address);
   const token2 = await hre.ethers.getContractAt("FHERC20", token2Address);
@@ -57,8 +57,6 @@ async function Swapcall() {
   const addLiquidity = await router.addLiquidity(
     token1Address,
     token2Address,
-    amount1,
-    amount2,
     amount1,
     amount2,
     contractOwner.address,
