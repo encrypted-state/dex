@@ -60,12 +60,14 @@ contract Router {
 
     /// @notice Swaps `amountIn` of one token for as much as possible of another token
     function swapExactTokensForTokens(
-        inEuint16 calldata amountIn, 
-        inEuint16 calldata amountOutMin, 
+        inEuint16 calldata _amountIn, 
+        inEuint16 calldata _amountOutMin, 
         address[] calldata path, 
         address to
     ) external returns (euint16[] memory amounts) {
-        amounts = RouterLibrary.getAmountsOut(factory, amountIn, path);
+        euint16 amountIn = FHE.asEuint16(_amountIn);
+        euint16 amountOutMin = FHE.asEuint16(_amountOutMin);
+        amounts = RouterLibrary.getAmountsOut(address(factory), amountIn, path);
         FHE.req(FHE.gte(amounts[amounts.length - 1], amountOutMin)); // Ensure last amount is gte amountOutMin
         _swap(amounts, path, to);  
     }
@@ -76,10 +78,11 @@ contract Router {
             address token1 = path[i + 1];
             euint16 amountOut = amounts[i + 1];
 
-            SwapPair pair = SwapPair(RouterLibrary.pairFor(factory, token0, token1));
+            SwapPair pair = SwapPair(RouterLibrary.pairFor(address(factory), token0, token1));
 
             // Determine if the current token to output is token0 or token1
-            bool isToken0Output = token0 < token1;
+            bool _isToken0Output = token0 < token1;
+            ebool isToken0Output = FHE.asEbool(_isToken0Output);
 
             // Determine amounts for amount0Out and amount1Out based on the direction of the swap
             euint16 amount0Out = FHE.select(isToken0Output, FHE.asEuint16(0), amountOut);
