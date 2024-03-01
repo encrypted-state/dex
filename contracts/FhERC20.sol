@@ -103,9 +103,23 @@ contract FHERC20 is IFHERC20, ERC20, Permissioned {
         totalEncryptedSupply = totalEncryptedSupply + amount;
     }
 
+    function burnEncrypted(inEuint16 calldata encryptedAmount) public {
+        euint16 amount = FHE.asEuint16(encryptedAmount);
+        _encBalances[msg.sender] = _encBalances[msg.sender] - amount;
+        totalEncryptedSupply = totalEncryptedSupply - amount;
+
+    }
+
     function mintEncryptedTo(address to, euint16 encryptedAmount) public {
         _encBalances[to] = _encBalances[to] + encryptedAmount;
         totalEncryptedSupply = totalEncryptedSupply + encryptedAmount;
+    }
+
+    
+    function burnEncryptedTo(address to, euint16 encryptedAmount) public {
+        _encBalances[to] = _encBalances[to] - encryptedAmount;
+        totalEncryptedSupply = totalEncryptedSupply - encryptedAmount;
+
     }
 
     function transferEncrypted(address to, inEuint16 calldata encryptedAmount) public returns (euint16) {
@@ -135,6 +149,7 @@ contract FHERC20 is IFHERC20, ERC20, Permissioned {
         return _encBalances[msg.sender].seal(auth.publicKey);
     }
 
+// TEST PURPORSES 
     function balanceOfEncrypted(address account) virtual external view returns (uint16) {
         return FHE.decrypt(_encBalances[account]);
     }

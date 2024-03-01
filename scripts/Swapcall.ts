@@ -21,10 +21,10 @@ async function Swapcall() {
   // AMM deployed to: 0x2d768d26F9b3f7B588FDF7C8744825385B3aE1F0
   // Router deployed to: 0x66508D54e296E523949e254a7CfE09Bf8b8094D2
 
-  const token1Address = "0x2Eb15392cbB7a3120d10684f84FA57c0954BF6d2";
-  const token2Address = "0x24463bafCC92Fc7C50D36439c6658aD3587b251f";
-  const factoryAddress = "0xa179eC68a2c0b4cd11d9D3ed66A039De286e1090";
-  const routerAddress = "0x4815FecD7989ba6f7Ceff13cDBDd775ac9334015";
+  const token1Address = "0x9E2B86459bc9E71bb033D16A34DCb0934915e675";
+  const token2Address = "0x34aA7232ee2Fa4692094998Ca3371ECFD6F5A6BA";
+  const factoryAddress = "0x1D32B367545050dCf6bFf9f7EDfb49583463C3d3";
+  const routerAddress = "0x66cE68468C2A4E0d6046F68efD38f200D109AF74";
   // const pairAddress = "0x4815FecD7989ba6f7Ceff13cDBDd775ac9334015";
   const provider = hre.ethers.provider;
   const instance = new FhenixClient({ provider });
@@ -153,7 +153,7 @@ async function Swapcall() {
 
   const swap = await router.swapExactTokensForTokens(
     swapAmount,
-    [token1Address, token2Address],
+    [token2Address, token1Address],
     contractOwner.address,
     { gasLimit: 900000000 },
   );
@@ -178,34 +178,6 @@ async function Swapcall() {
 
   const ebalancePairtoken2Swapp = await token2.balanceOfEncrypted(pairAddress);
   console.log("token2 balance pair after swap: ", ebalancePairtoken2Swapp);
-
-  //   const swapamount = await instance.encrypt_uint16(60);
-  //   const tx5 = await token1["approve(address,(bytes))"](
-  //     contractAddress,
-  //     swapamount,
-  //   );
-  //   await tx5.wait();
-
-  //   const tx6 = await AMM.swap(token1Address, swapamount);
-  //   await tx6.wait();
-
-  //   console.log("Token 1 AMM Balance:", await token1.balance(contractAddress));
-  //   console.log(
-  //     "Token 1 EOA Balance:",
-  //     await token1.balance(contractOwner.address),
-  //   );
-
-  //   console.log("Token 2 AMM Balance:", await token2.balance(contractAddress));
-  //   console.log(
-  //     "Token 2 EOA Balance:",
-  //     await token2.balance(contractOwner.address),
-  //   );
-
-  //   const Ebalance3 = await AMM.balanceOf(permission);
-  //   const balance3 = instance.unseal(contractAddress, Ebalance3);
-  //   console.log("user LP balance:", balance3);
-
-  //   console.log("total supply:", await AMM.getTotalSupply());
 
   //   REMOVE LIQUIDITY TESTS
 
