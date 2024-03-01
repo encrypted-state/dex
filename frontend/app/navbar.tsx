@@ -35,25 +35,34 @@ const Navbar = () => {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href={"/"}>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Swap
-              </NavigationMenuLink>
-            </Link>
+            {/* <Link href={"/"}> */}
+            <NavigationMenuLink
+              href={"/"}
+              className={navigationMenuTriggerStyle()}
+            >
+              Swap
+            </NavigationMenuLink>
+            {/* </Link> */}
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href={"/liquidity"}>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Liquidity
-              </NavigationMenuLink>
-            </Link>
+            {/* <Link href={"/liquidity"}> */}
+            <NavigationMenuLink
+              href={"/liquidity"}
+              className={navigationMenuTriggerStyle()}
+            >
+              Liquidity
+            </NavigationMenuLink>
+            {/* </Link> */}
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/faucet">
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Free Tokens
-              </NavigationMenuLink>
-            </Link>
+            {/* <Link> */}
+            <NavigationMenuLink
+              href="/faucet"
+              className={navigationMenuTriggerStyle()}
+            >
+              Free Tokens
+            </NavigationMenuLink>
+            {/* </Link> */}
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
