@@ -9,39 +9,46 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/components/ui/table";
-import { useAccount, useConnect, useWriteContract } from 'wagmi';
+import { useAccount, useClient, useConnect, useWriteContract } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 import { Button } from "../components/ui/button";
 import { tokens } from "@/lib/tokens";
+import { useEthersSigner, useEthersProvider } from '@/lib/ethers'; 
 import { mockTokenABI } from "@/abi/mockTokenABI";
+import { FhenixClient, getPermit } from "fhenixjs";
 
 import { AvatarImage, Avatar, AvatarFallback } from "../components/ui/avatar";
+import { ethers } from "ethers"
 
 const externalMintUrl = "https://faucet.fhenix.zone/";
 export default function FaucetPage() {
-  // const { connect } = useConnect();
-  // const { isConnected } = useAccount();
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const fhenix = new FhenixClient({ provider});
 
-  // const handleMint = async (tokenAddress: string) => {
-  //   if (!isConnected) {
-  //     console.log("not connected");
-  //     return;
-  //   }
 
-  //   const { writeAsync } = useWriteContract({
-  //     abi: mockTokenABI;
-  //     address: 0x853882bb6c8C9B0ACB94d12C8C21E3c3173eec9d,
-  //     contractInterface: mockTokenABI,
-  //     functionName: 'mint',
-  //   });
+  const { connect } = useConnect();
+  const { isConnected } = useAccount();
 
-  //   try {
-  //     const txReceipt = await writeAsync();
-  //     console.log('Transaction receipt:', txReceipt);
-  //   } catch (error) {
-  //     console.error('Error minting tokens:', error);
-  //   }
-  // };
+  const handleMint = async (tokenAddress: string) => {
+    if (!isConnected) {
+      console.log("not connected");
+      return;
+    }
+
+    // const { writeAsync } = useWriteContract({
+    //   abi: mockTokenABI;
+    //   address: 0x853882bb6c8C9B0ACB94d12C8C21E3c3173eec9d,
+    //   contractInterface: mockTokenABI,
+    //   functionName: 'mint',
+    // });
+
+    // try {
+    //   const txReceipt = await writeAsync();
+    //   console.log('Transaction receipt:', txReceipt);
+    // } catch (error) {
+    //   console.error('Error minting tokens:', error);
+    // }
+  };
  
   
 
@@ -78,7 +85,10 @@ export default function FaucetPage() {
           </Link>
         ) : (
           // <Button onClick={handleMint}>Mint</Button>
-          <Button>Mint</Button>
+          <Button onClick={async()=> {
+            const permit = await getPermit("0x853882bb6c8C9B0ACB94d12C8C21E3c3173eec9d", provider)
+          console.log(permit)
+        }}>Mint</Button>
         )}
       </TableCell>
     </TableRow>
