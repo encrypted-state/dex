@@ -27,21 +27,23 @@ library RouterLibrary {
     }
 
     function getAmountsOut(address factory, euint16 amountIn, address[] memory path) internal view returns (euint16[] memory amounts) {
-        require(path.length >= 2, "Invalid path length"); // Ensure valid path
+        require(path.length >= 2, "Invalid path length");
         amounts = new euint16[](path.length);
         amounts[0] = amountIn;
         for (uint i = 0; i < path.length - 1; i++) {
-            euint16 ratio = getRatio(factory, path[i], path[i + 1]);
-            amounts[i + 1] = getAmountOut(amounts[i], ratio);
+            (address token0, address token1) = sortTokens(path[i], path[i + 1]); // Ensure valid path
+
+            amounts[i + 1] = getAmountOut(amounts[i], token0, token1,factory);
         }
     } 
 
-    function getAmountOut(euint16 amountIn, euint16 ratio) internal pure returns (euint16) {
-        FHE.req(FHE.ne(amountIn, FHE.asEuint16(0))); // Ensure amountIn is non-zero
-        FHE.req(FHE.ne(ratio, FHE.asEuint16(0))); // Ensure ratio is non-zero
+    function getAmountOut(euint16 amountIn, address tokenIn, address tokenOut, address factory) internal view returns (euint16 amountOut) {
+        // LEAKS
+//    FHE.req(FHE.ne(amountIn, FHE.asEuint16(0))); // Ensure amountIn is non-zero
+        // FHE.req(FHE.ne(ratio, FHE.asEuint16(0))); // Ensure ratio is non-zero
 
         // calculate amount out based on ratio
-        euint16 amountOut = FHE.mul(amountIn, ratio);
-        return amountOut;
+
+        amountOut = SwapPair(pairFor(address(factory), tokenIn, tokenOut)).getAmountOut(amountIn, tokenIn);
     } 
 }
