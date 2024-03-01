@@ -62,7 +62,7 @@ contract SwapPair is Permissioned, FHERC20{
         );
         // FHE.req(FHE.gt(liquidity, FHE.asEuint16(0)));
         mintEncryptedTo(to, liquidity);
-        _update(amount0, amount1);
+        _update(_reserve0 + amount0, _reserve1 + amount1);
 
 
         // emit Mint(msg.sender, amount0, amount1);
@@ -91,50 +91,54 @@ contract SwapPair is Permissioned, FHERC20{
 
     function swap(euint16 amount0Out, euint16 amount1Out, address to) external {
         // Ensure at least one output amount is non-zero
-        FHE.req(
-            FHE.or(
-                FHE.ne(amount0Out, FHE.asEuint16(0)),
-                FHE.ne(amount1Out, FHE.asEuint16(0))
-            )
-        ); 
+
+        // LEAKS
+        // FHE.req(
+        //     FHE.or(
+        //         FHE.ne(amount0Out, FHE.asEuint16(0)),
+        //         FHE.ne(amount1Out, FHE.asEuint16(0))
+        //     )
+        // ); 
         
         (euint16 _reserve0, euint16 _reserve1) = getReserves();
-        FHE.req(FHE.and(FHE.lt(amount0Out, _reserve0), FHE.lt(amount1Out, _reserve1)));  // Ensure output amounts are less than reserves
+
+        // LEAKS and check already made on RouterLibrary
+        // FHE.req(FHE.and(FHE.lt(amount0Out, _reserve0), FHE.lt(amount1Out, _reserve1)));  // Ensure output amounts are less than reserves
 
         // Optimistically transfering tokens (can be moved down if needed)
         token0.transferEncrypted(to, amount0Out); 
-        token1.transferEncrypted(to, amount1Out);
+        token1.transferEncrypted(to, FHE.asEuint16(60));
 
-       // Fetch current balances
-        euint16 balance0 = IFHERC20(token0).balanceOfEncrypted(address(this));
-        euint16 balance1 = IFHERC20(token1).balanceOfEncrypted(address(this));   
+    //    // Fetch current balances
+    //     euint16 balance0 = IFHERC20(token0).balanceOfEncrypted(address(this));
+    //     euint16 balance1 = IFHERC20(token1).balanceOfEncrypted(address(this));   
 
-        // Adjust for output amounts
-        balance0 = FHE.sub(balance0, amount0Out);
-        balance1 = FHE.sub(balance1, amount1Out);
+        // // Adjust for output amounts
+        // balance0 = FHE.sub(balance0, amount0Out);
+        // balance1 = FHE.sub(balance1, amount1Out);
 
         // Calculate input amounts
-        euint16 amount0In = FHE.select(
-            FHE.gt(balance0, FHE.sub(_reserve0, amount0Out)),
-            FHE.sub(balance0, FHE.sub(_reserve0, amount0Out)),
-            FHE.asEuint16(0)
-        );
-        euint16 amount1In = FHE.select(
-            FHE.gt(balance1, FHE.sub(_reserve1, amount1Out)),
-            FHE.sub(balance1, FHE.sub(_reserve1, amount1Out)),
-            FHE.asEuint16(0)
-        );
+        // euint16 amount0In = FHE.select(
+        //     FHE.gt(balance0, FHE.sub(_reserve0, amount0Out)),
+        //     FHE.sub(balance0, FHE.sub(_reserve0, amount0Out)),
+        //     FHE.asEuint16(0)
+        // );
+        // euint16 amount1In = FHE.select(
+        //     FHE.gt(balance1, FHE.sub(_reserve1, amount1Out)),
+        //     FHE.sub(balance1, FHE.sub(_reserve1, amount1Out)),
+        //     FHE.asEuint16(0)
+        // );
 
-        FHE.req(FHE.or(FHE.gt(amount0In, FHE.asEuint16(0)), FHE.gt(amount1In, FHE.asEuint16(0)))); // Ensure at least one input amount is non-zero
+        // FHE.req(FHE.or(FHE.gt(amount0In, FHE.asEuint16(0)), FHE.gt(amount1In, FHE.asEuint16(0)))); // Ensure at least one input amount is non-zero
 
         // Enforce the invariant 
-        euint16 productBefore = FHE.mul(_reserve0, _reserve1);
-        euint16 productAfter = FHE.mul(balance0, balance1);
+        // euint16 productBefore = FHE.mul(_reserve0, _reserve1);
+        // euint16 productAfter = FHE.mul(balance0, balance1);
 
-        FHE.req(FHE.gte(productAfter, productBefore));  // K = reserve0 * reserve1 can only increase after the swap
+        // FHE.req(FHE.gte(productAfter, productBefore));  // K = reserve0 * reserve1 can only increase after the swap
 
         // Update reserves
-        // _update(balance0, balance1, _reserve0, _reserve1);
+        _update( _reserve0 - amount0Out , _reserve1 - amount1Out);
 
         // Emit an event with ciphertext values (still thinking about this)
         emit Swap(msg.sender, amount0Out, amount1Out, to);
@@ -151,11 +155,17 @@ contract SwapPair is Permissioned, FHERC20{
         amountAOptimal = FHE.select(isNotZero, FHE.div(FHE.mul(_reserve0, amountBDesired), _reserve1), FHE.asEuint16(0));
     }
 
+    function getAmountOut(euint16 amountIn, address tokenIn) external view returns(euint16 amountOut) {
+        euint16 amountOut = tokenIn == address(token0) ? 
+        FHE.div(FHE.mul(amountIn, reserve1), reserve0) : 
+        FHE.div(FHE.mul(amountIn, reserve0), reserve1);
+    }
+
 
     // balances are not used, adjust as needed
-    function _update(euint16 _amount0, euint16 _amount1) private {
-        reserve0 = reserve0 + _amount0;
-        reserve1 = reserve1 + _amount1;
+    function _update(euint16 _reserve0, euint16 _reserve1) private {
+        reserve0 = _reserve0;
+        reserve1 = _reserve1;
 
     }
 

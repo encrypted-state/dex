@@ -135,8 +135,8 @@ contract FHERC20 is IFHERC20, ERC20, Permissioned {
         return _encBalances[msg.sender].seal(auth.publicKey);
     }
 
-    function balanceOfEncrypted(address account) virtual external view returns (euint16) {
-        return _encBalances[account];
+    function balanceOfEncrypted(address account) virtual external view returns (uint16) {
+        return FHE.decrypt(_encBalances[account]);
     }
 
     //    // Returns the total supply of tokens, sealed and encrypted for the caller.
