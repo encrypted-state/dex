@@ -72,14 +72,14 @@ contract SwapPair is Permissioned, FHERC20{
         (euint16 _reserve0, euint16 _reserve1) = getReserves();
 
         euint16 _totalEncryptedSupply = totalEncryptedSupply;   
-        euint16 amount0 = FHE.div(FHE.mul(liquidity, _reserve0), _totalEncryptedSupply);
-        euint16 amount1 = FHE.div(FHE.mul(liquidity, _reserve1), _totalEncryptedSupply);
+        euint16 amount0 = FHE.div(FHE.mul(liquidity, _reserve1), _totalEncryptedSupply);
+        euint16 amount1 = FHE.div(FHE.mul(liquidity, _reserve0), _totalEncryptedSupply);
 
         // FHE.req(FHE.and(FHE.gt(amount0, FHE.asEuint16(0)), FHE.lt(amount1, FHE.asEuint16(0))));
         // can we pass in liquidity like this ?
         burnEncryptedTo(to, liquidity);
-        IFHERC20(token0).transferEncrypted(to, amount0);
-        IFHERC20(token1).transferEncrypted(to, amount1);
+        token0.transferEncrypted(to, amount0);
+        token1.transferEncrypted(to, amount1);
         _update(reserve0 - amount0, _reserve1 - amount1);
         // emit Burn(msg.sender, amount0, amount1, to);   
     }

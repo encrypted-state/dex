@@ -21,10 +21,10 @@ async function Swapcall() {
   // AMM deployed to: 0x2d768d26F9b3f7B588FDF7C8744825385B3aE1F0
   // Router deployed to: 0x66508D54e296E523949e254a7CfE09Bf8b8094D2
 
-  const token1Address = "0x9E2B86459bc9E71bb033D16A34DCb0934915e675";
-  const token2Address = "0x34aA7232ee2Fa4692094998Ca3371ECFD6F5A6BA";
-  const factoryAddress = "0x1D32B367545050dCf6bFf9f7EDfb49583463C3d3";
-  const routerAddress = "0x66cE68468C2A4E0d6046F68efD38f200D109AF74";
+  const token1Address = "0xB5ca27C46E132023e839EE87303429Fd4B2f580F";
+  const token2Address = "0x484a2d41C2F7A33F08260c2443E33C5104290232";
+  const factoryAddress = "0x5a92979d6172b6E591b323C709010074456e53F7";
+  const routerAddress = "0x3F5Cd6F23BB92D9926f1e948c3cE912E13C7e707";
   // const pairAddress = "0x4815FecD7989ba6f7Ceff13cDBDd775ac9334015";
   const provider = hre.ethers.provider;
   const instance = new FhenixClient({ provider });
@@ -131,6 +131,13 @@ async function Swapcall() {
   const balance = instance.unseal(pairAddress, eBalance);
   console.log("LP balance: ", balance);
 
+  const amountpair = await instance.encrypt_uint16(Number(balance));
+
+  const approvePair = await pair.approveEncrypted(routerAddress, amountpair);
+  approvePair.wait();
+
+  console.log("pair approved");
+
   const eBalance1Before = await token1.balanceOfSealed(
     contractOwner.address,
     permissionToken1,
@@ -153,7 +160,7 @@ async function Swapcall() {
 
   const swap = await router.swapExactTokensForTokens(
     swapAmount,
-    [token2Address, token1Address],
+    [token1Address, token2Address],
     contractOwner.address,
     { gasLimit: 900000000 },
   );
@@ -174,12 +181,52 @@ async function Swapcall() {
   console.log("token2 balance after swap: ", balance2After);
 
   const ebalancePairtoken1Swapp = await token1.balanceOfEncrypted(pairAddress);
-  console.log("token1 balance pair after swap: ", ebalancePairtoken1Swapp);
+  console.log("PAIR token1 balance after swap: ", ebalancePairtoken1Swapp);
 
   const ebalancePairtoken2Swapp = await token2.balanceOfEncrypted(pairAddress);
-  console.log("token2 balance pair after swap: ", ebalancePairtoken2Swapp);
+  console.log("PAIR token2 balance after swap: ", ebalancePairtoken2Swapp);
 
   //   REMOVE LIQUIDITY TESTS
+  const removeLiquidity = await router.removeLiquidity(
+    token1Address,
+    token2Address,
+    amountpair,
+    contractOwner.address,
+  );
+  removeLiquidity.wait();
+
+  const ELPBalanceAfterSwap = await pair.balanceOfSealed(
+    contractOwner.address,
+    permission,
+  );
+  const LPBalanceAfterSwap = instance.unseal(pairAddress, ELPBalanceAfterSwap);
+  console.log("LP balance after remove: ", LPBalanceAfterSwap);
+
+  const eBalance1AfterRemove = await token1.balanceOfSealed(
+    contractOwner.address,
+    permissionToken1,
+  );
+  const balance1AfterRemove = instance.unseal(
+    token1Address,
+    eBalance1AfterRemove,
+  );
+  console.log("token1 balance after remove: ", balance1AfterRemove);
+
+  const eBalance2AfterRemove = await token2.balanceOfSealed(
+    contractOwner.address,
+    permissionToken2,
+  );
+  const balance2AfterRemove = instance.unseal(
+    token2Address,
+    eBalance2AfterRemove,
+  );
+  console.log("token2 balance after remove: ", balance2AfterRemove);
+
+  const ebalancePairtoken1Remove = await token1.balanceOfEncrypted(pairAddress);
+  console.log("PAIR token1 balance  after remove: ", ebalancePairtoken1Remove);
+
+  const ebalancePairtoken2Remove = await token2.balanceOfEncrypted(pairAddress);
+  console.log("PAIR token2 balance  after remove: ", ebalancePairtoken2Remove);
 
   // console.log("total supply:", await AMM.getTotalSupply());
 

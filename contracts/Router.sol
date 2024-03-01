@@ -55,7 +55,7 @@ contract Router {
     ) public returns (euint16 amountA, euint16 amountB) {
         euint16 liquidity = FHE.asEuint16(_liquidity);
         address pair = RouterLibrary.pairFor(address(factory), tokenA, tokenB);
-        SwapPair(pair).transferFromEncrypted(msg.sender, pair, liquidity);
+        // SwapPair(pair).transferFromEncrypted(msg.sender, pair, liquidity);
         SwapPair(pair).burn(to, liquidity);
     }
 
