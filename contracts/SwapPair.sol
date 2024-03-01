@@ -107,7 +107,7 @@ contract SwapPair is Permissioned, FHERC20{
 
         // Optimistically transfering tokens (can be moved down if needed)
         token0.transferEncrypted(to, amount0Out); 
-        token1.transferEncrypted(to, FHE.asEuint16(60));
+        token1.transferEncrypted(to, amount1Out);
 
     //    // Fetch current balances
     //     euint16 balance0 = IFHERC20(token0).balanceOfEncrypted(address(this));
@@ -156,7 +156,7 @@ contract SwapPair is Permissioned, FHERC20{
     }
 
     function getAmountOut(euint16 amountIn, address tokenIn) external view returns(euint16 amountOut) {
-        euint16 amountOut = tokenIn == address(token0) ? 
+        amountOut = tokenIn == address(token0) ? 
         FHE.div(FHE.mul(amountIn, reserve1), reserve0) : 
         FHE.div(FHE.mul(amountIn, reserve0), reserve1);
     }

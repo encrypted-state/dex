@@ -21,11 +21,11 @@ async function Swapcall() {
   // AMM deployed to: 0x2d768d26F9b3f7B588FDF7C8744825385B3aE1F0
   // Router deployed to: 0x66508D54e296E523949e254a7CfE09Bf8b8094D2
 
-  const token1Address = "0x8A2403EaB830Bb23FF669afD41B63f75b0A5e5C9";
-  const token2Address = "0x990976A5F11A5164A8CBeb2D08f63a78c4927316";
-  const factoryAddress = "0xA84C576ec3BD79f81fC617c55926dEdE15bb4C0d";
-  const routerAddress = "0x77BB92d511d41dAd1C7bF7292b9f8093204da008";
-  // const pairAddress = "0x9Bc6f65E6cFC2d4a45a96ab0358173966616C3c8";
+  const token1Address = "0x2Eb15392cbB7a3120d10684f84FA57c0954BF6d2";
+  const token2Address = "0x24463bafCC92Fc7C50D36439c6658aD3587b251f";
+  const factoryAddress = "0xa179eC68a2c0b4cd11d9D3ed66A039De286e1090";
+  const routerAddress = "0x4815FecD7989ba6f7Ceff13cDBDd775ac9334015";
+  // const pairAddress = "0x4815FecD7989ba6f7Ceff13cDBDd775ac9334015";
   const provider = hre.ethers.provider;
   const instance = new FhenixClient({ provider });
 

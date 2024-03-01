@@ -44,6 +44,6 @@ library RouterLibrary {
 
         // calculate amount out based on ratio
 
-        euint16 amountOut = SwapPair(pairFor(address(factory), tokenIn, tokenOut)).getAmountOut(amountIn, tokenIn);
+        amountOut = SwapPair(pairFor(address(factory), tokenIn, tokenOut)).getAmountOut(amountIn, tokenIn);
     } 
 }
