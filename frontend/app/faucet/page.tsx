@@ -16,9 +16,8 @@ import { AvatarImage, Avatar, AvatarFallback } from "../components/ui/avatar";
 export default function FaucetPage() {
   return (
     <>
-      <h1 className="font-semibold text-2xl mb-2">Fhenix Faucet</h1>
+      <h1 className="font-semibold text-2xl mb-2">Test Assets</h1>
       <Table>
-        <TableCaption>A list of available tokens on Fhenix.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[150px]">Asset</TableHead>

@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 import { Web3Provider } from "./components/web3-provider";
 import Navbar from "./navbar";
 export const metadata: Metadata = {
-  title: "Invisiswap",
+  title: "Donut",
 };
 export default function RootLayout({
   children,
