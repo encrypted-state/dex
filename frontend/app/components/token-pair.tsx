@@ -42,6 +42,14 @@ import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
 import { Token, tokens } from "@/lib/tokens";
 import { ethers } from "ethers";
 import { useEthersSigner } from "@/lib/ethers";
+import { routerABI } from "@/abi/routerABI";
+import { fherc20ABI } from "@/abi/fherc20ABI";
+import { FhenixClient } from "fhenixjs";
+
+
+
+   // fix this
+const routerAddress: string = "0x58295167A9c2fecE5C6C709846EaAdCe3668Ed5F";
 
 const TokenSelector = ({
   selectedToken,
@@ -188,40 +196,74 @@ const MainButton = ({
   topToken: Token;
 }) => {
   const { isConnected } = useAccount();
-  const signer = useEthersSigner();
+  const signer: any = useEthersSigner();
+  const { address } = useAccount();
+
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const fhenix = new FhenixClient({ provider });
+
 
   async function handleSwap() {
+
+    const amountTokenIn = await fhenix.encrypt_uint16(50);
+
+    const tokenInContract = {
+      contract: new ethers.Contract(topToken.address, fherc20ABI, signer as any),
+      address: topToken.address,
+    };
+
+    const approve = await tokenInContract.contract.approveEncrypted(routerAddress, amountTokenIn);
+    approve.wait();
+
     console.log("swap", topToken, bottomToken);
     const RouterContract = {
       //Add router contract address and router ABI
-      contract: new ethers.Contract(token.address, routerABI, signer as any),
-      address: token.address,
+      contract: new ethers.Contract(routerAddress, routerABI, signer as any),
+      address: routerAddress,
     };
+
+    console.log(  amountTokenIn,
+      [topToken.address, bottomToken.address],
+      address,)
     // get userInput on toptoken and address of user
     const swap = await RouterContract.contract.swapExactTokensForTokens(
-      amountTokenTop,
+      amountTokenIn,
       [topToken.address, bottomToken.address],
       address,
-      { gasLimit: 900000000 },
     );
-    await swap.wait();
+    swap.wait();
   }
 
   async function handleAddLiquidity() {
+
+    const amountTokenTop = await fhenix.encrypt_uint16(50);
+    const amountTokenBottom = await fhenix.encrypt_uint16(50);
+    const tokenContract1 = {
+      contract: new ethers.Contract(topToken.address, fherc20ABI, signer as any),
+      address: topToken.address,
+    };
+    const tokenContract2 = {
+      contract: new ethers.Contract(bottomToken.address, fherc20ABI, signer as any),
+      address: bottomToken.address,
+    };
+  
+    const approve1 = await tokenContract1.contract.approveEncrypted(routerAddress, amountTokenTop);
+    approve1.wait();
+
+    const approve2 = await tokenContract2.contract.approveEncrypted(routerAddress, amountTokenBottom);
+    approve2.wait();
+
     console.log("addLiquidity", topToken, bottomToken);
     const RouterContract = {
-      //Add router contract address and router ABI
-      contract: new ethers.Contract(token.address, routerABI, signer as any),
-      address: token.address,
+      contract: new ethers.Contract(routerAddress, routerABI, signer as any),
+      address: routerAddress,
     };
-    // get userInput on both tokens  and address of user
     const addliquidity = await RouterContract.contract.addLiquidity(
       topToken.address,
       bottomToken.address,
       amountTokenTop,
       amountTokenBottom,
       address,
-      { gasLimit: 900000000 },
     );
     await addliquidity.wait();
   }

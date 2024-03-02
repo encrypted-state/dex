@@ -14,7 +14,7 @@ import { injected } from "wagmi/connectors";
 import { Button } from "../components/ui/button";
 import { tokens } from "@/lib/tokens";
 import { useEthersSigner, useEthersProvider } from "@/lib/ethers";
-import { mockTokenABI } from "@/abi/mockTokenABI";
+import { fherc20ABI } from "@/abi/fherc20ABI";
 import { FhenixClient, getPermit } from "fhenixjs";
 
 import { AvatarImage, Avatar, AvatarFallback } from "../components/ui/avatar";

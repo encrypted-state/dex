@@ -62,7 +62,6 @@ contract Router {
     /// @notice Swaps `amountIn` of one token for as much as possible of another token
     function swapExactTokensForTokens(
         inEuint16 calldata _amountIn, 
-        // inEuint16 calldata _amountOutMin, 
         address[] calldata path, 
         address to
     ) external returns (euint16[] memory amounts) {

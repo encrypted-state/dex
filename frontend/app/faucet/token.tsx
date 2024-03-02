@@ -15,7 +15,7 @@ import { useAccount } from "wagmi";
 import { Button } from "../components/ui/button";
 import { getPermit, FhenixClient } from "fhenixjs";
 import { useState, useEffect, useCallback } from "react";
-import { mockTokenABI } from "@/abi/mockTokenABI";
+import { fherc20ABI } from "@/abi/fherc20ABI";
 
 import { generatePermits } from "@/lib/permits";
 import { ethers, formatEther } from "ethers";
@@ -48,7 +48,7 @@ export default function Token({ token, provider, fhenix }: any) {
 
     console.log(token.address);
     const contract = {
-      contract: new ethers.Contract(token.address, mockTokenABI, signer as any),
+      contract: new ethers.Contract(token.address, fherc20ABI, signer as any),
       address: token.address,
     };
 
@@ -65,7 +65,7 @@ export default function Token({ token, provider, fhenix }: any) {
     console.log(signer);
 
     const contract = {
-      contract: new ethers.Contract(token.address, mockTokenABI, signer as any),
+      contract: new ethers.Contract(token.address, fherc20ABI, signer as any),
       address: token.address,
     };
     console.log(contract);
