@@ -12,7 +12,7 @@ export default function Home() {
         End-To-End Encrypted Swaps
       </h1>
       <Link href="/swap">
-        <Button className="mt-6 px-6 py-4 text-lg rounded-lg hover:bg-pink-600 hover:text-white transition-colors duration-300 ease-in-out">
+        <Button className="mt-6 px-6 py-4 text-lg rounded-lg hover:bg-pink-400 hover:text-white transition-colors duration-300 ease-in-out">
           Launch App
         </Button>
       </Link>

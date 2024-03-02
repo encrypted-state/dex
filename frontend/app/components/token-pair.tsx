@@ -40,6 +40,16 @@ import {
 } from "./ui/command";
 import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
 import { Token, tokens } from "@/lib/tokens";
+import { ethers } from "ethers";
+import { useEthersSigner } from "@/lib/ethers";
+import { routerABI } from "@/abi/routerABI";
+import { fherc20ABI } from "@/abi/fherc20ABI";
+import { FhenixClient } from "fhenixjs";
+
+
+
+   // fix this
+const routerAddress: string = "0x58295167A9c2fecE5C6C709846EaAdCe3668Ed5F";
 
 const TokenSelector = ({
   selectedToken,
@@ -176,12 +186,95 @@ const ProvideLiquidityMiddleButton = () => (
   </div>
 );
 
-const MainButton = ({ type }: { type: "swap" | "liquidity" }) => {
+const MainButton = ({
+  type,
+  bottomToken,
+  topToken,
+}: {
+  type: "swap" | "liquidity";
+  bottomToken: Token;
+  topToken: Token;
+}) => {
   const { isConnected } = useAccount();
+  const signer: any = useEthersSigner();
+  const { address } = useAccount();
+
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const fhenix = new FhenixClient({ provider });
+
+
+  async function handleSwap() {
+
+    const amountTokenIn = await fhenix.encrypt_uint16(50);
+
+    const tokenInContract = {
+      contract: new ethers.Contract(topToken.address, fherc20ABI, signer as any),
+      address: topToken.address,
+    };
+
+    const approve = await tokenInContract.contract.approveEncrypted(routerAddress, amountTokenIn);
+    approve.wait();
+
+    console.log("swap", topToken, bottomToken);
+    const RouterContract = {
+      //Add router contract address and router ABI
+      contract: new ethers.Contract(routerAddress, routerABI, signer as any),
+      address: routerAddress,
+    };
+
+    console.log(  amountTokenIn,
+      [topToken.address, bottomToken.address],
+      address,)
+    // get userInput on toptoken and address of user
+    const swap = await RouterContract.contract.swapExactTokensForTokens(
+      amountTokenIn,
+      [topToken.address, bottomToken.address],
+      address,
+    );
+    swap.wait();
+  }
+
+  async function handleAddLiquidity() {
+
+    const amountTokenTop = await fhenix.encrypt_uint16(50);
+    const amountTokenBottom = await fhenix.encrypt_uint16(50);
+    const tokenContract1 = {
+      contract: new ethers.Contract(topToken.address, fherc20ABI, signer as any),
+      address: topToken.address,
+    };
+    const tokenContract2 = {
+      contract: new ethers.Contract(bottomToken.address, fherc20ABI, signer as any),
+      address: bottomToken.address,
+    };
+  
+    const approve1 = await tokenContract1.contract.approveEncrypted(routerAddress, amountTokenTop);
+    approve1.wait();
+
+    const approve2 = await tokenContract2.contract.approveEncrypted(routerAddress, amountTokenBottom);
+    approve2.wait();
+
+    console.log("addLiquidity", topToken, bottomToken);
+    const RouterContract = {
+      contract: new ethers.Contract(routerAddress, routerABI, signer as any),
+      address: routerAddress,
+    };
+    const addliquidity = await RouterContract.contract.addLiquidity(
+      topToken.address,
+      bottomToken.address,
+      amountTokenTop,
+      amountTokenBottom,
+      address,
+    );
+    await addliquidity.wait();
+  }
   return (
     <>
       {isConnected ? (
-        <Button className="w-full text-base mt-1" size={"lg"}>
+        <Button
+          className="w-full text-base mt-1"
+          size={"lg"}
+          onClick={type === "swap" ? handleSwap : handleAddLiquidity}
+        >
           {type === "swap" ? "Swap" : "Add"}
         </Button>
       ) : (
@@ -225,7 +318,7 @@ const TokenPair = ({ type }: { type: "swap" | "liquidity" }) => {
         onSelectToken={setBottomToken}
         excludeToken={topToken}
       />
-      <MainButton type={type} />
+      <MainButton type={type} bottomToken={bottomToken!} topToken={topToken} />
     </div>
   );
 };

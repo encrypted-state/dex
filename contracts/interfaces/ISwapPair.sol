@@ -41,8 +41,7 @@ interface ISwapPair {
     function token0() external view returns (address);
     function token1() external view returns (address);
 
-    // modifying this
-    function getReserves() external view returns (euint16 reserve0, euint16 reserve1);
+    function getReserves() external view returns (uint reserve0, uint reserve1);
 
     function price0CumulativeLast() external view returns (uint);
     function price1CumulativeLast() external view returns (uint);

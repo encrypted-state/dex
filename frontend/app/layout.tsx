@@ -7,6 +7,8 @@ import { ConnectKitButton } from "connectkit";
 const inter = Inter({ subsets: ["latin"] });
 import { Web3Provider } from "./components/web3-provider";
 import Navbar from "./navbar";
+import { ethers } from "ethers";
+import { FhenixClient } from "fhenixjs";
 export const metadata: Metadata = {
   title: "Donut",
 };

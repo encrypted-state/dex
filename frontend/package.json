@@ -21,6 +21,7 @@
     "cmdk": "^0.2.1",
     "connectkit": "^1.7.2",
     "encoding": "^0.1.13",
+    "fhenixjs": "^0.1.1",
     "lucide-react": "^0.341.0",
     "next": "14.1.0",
     "next-themes": "^0.2.1",
@@ -31,7 +32,8 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "viem": "^2.7.15",
-    "wagmi": "^2.5.7"
+    "wagmi": "^2.5.7",
+    "zustand": "^4.5.1"
   },
   "devDependencies": {
     "@types/node": "^20",
