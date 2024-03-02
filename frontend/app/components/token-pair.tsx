@@ -40,6 +40,8 @@ import {
 } from "./ui/command";
 import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
 import { Token, tokens } from "@/lib/tokens";
+import { ethers } from "ethers";
+import { useEthersSigner } from "@/lib/ethers";
 
 const TokenSelector = ({
   selectedToken,
@@ -176,12 +178,61 @@ const ProvideLiquidityMiddleButton = () => (
   </div>
 );
 
-const MainButton = ({ type }: { type: "swap" | "liquidity" }) => {
+const MainButton = ({
+  type,
+  bottomToken,
+  topToken,
+}: {
+  type: "swap" | "liquidity";
+  bottomToken: Token;
+  topToken: Token;
+}) => {
   const { isConnected } = useAccount();
+  const signer = useEthersSigner();
+
+  async function handleSwap() {
+    console.log("swap", topToken, bottomToken);
+    const RouterContract = {
+      //Add router contract address and router ABI
+      contract: new ethers.Contract(token.address, routerABI, signer as any),
+      address: token.address,
+    };
+    // get userInput on toptoken and address of user
+    const swap = await RouterContract.contract.swapExactTokensForTokens(
+      amountTokenTop,
+      [topToken.address, bottomToken.address],
+      address,
+      { gasLimit: 900000000 },
+    );
+    await swap.wait();
+  }
+
+  async function handleAddLiquidity() {
+    console.log("addLiquidity", topToken, bottomToken);
+    const RouterContract = {
+      //Add router contract address and router ABI
+      contract: new ethers.Contract(token.address, routerABI, signer as any),
+      address: token.address,
+    };
+    // get userInput on both tokens  and address of user
+    const addliquidity = await RouterContract.contract.addLiquidity(
+      topToken.address,
+      bottomToken.address,
+      amountTokenTop,
+      amountTokenBottom,
+      address,
+      { gasLimit: 900000000 },
+    );
+    await addliquidity.wait();
+  }
   return (
     <>
       {isConnected ? (
-        <Button className="w-full text-base mt-1" size={"lg"}>
+        <Button
+          className="w-full text-base mt-1"
+          size={"lg"}
+          onClick={type === "swap" ? handleSwap : handleAddLiquidity}
+        >
           {type === "swap" ? "Swap" : "Add"}
         </Button>
       ) : (
@@ -225,7 +276,7 @@ const TokenPair = ({ type }: { type: "swap" | "liquidity" }) => {
         onSelectToken={setBottomToken}
         excludeToken={topToken}
       />
-      <MainButton type={type} />
+      <MainButton type={type} bottomToken={bottomToken!} topToken={topToken} />
     </div>
   );
 };

@@ -29,26 +29,26 @@ export default function FaucetPage() {
   const { connect } = useConnect();
   const { isConnected } = useAccount();
 
-  const handleMint = async (tokenAddress: string) => {
-    if (!isConnected) {
-      console.log("not connected");
-      return;
-    }
+  // const handleMint = async (tokenAddress: string) => {
+  //   if (!isConnected) {
+  //     console.log("not connected");
+  //     return;
+  //   }
 
-    // const { writeAsync } = useWriteContract({
-    //   abi: mockTokenABI;
-    //   address: 0x853882bb6c8C9B0ACB94d12C8C21E3c3173eec9d,
-    //   contractInterface: mockTokenABI,
-    //   functionName: 'mint',
-    // });
+  //   // const { writeAsync } = useWriteContract({
+  //   //   abi: mockTokenABI;
+  //   //   address: 0x853882bb6c8C9B0ACB94d12C8C21E3c3173eec9d,
+  //   //   contractInterface: mockTokenABI,
+  //   //   functionName: 'mint',
+  //   // });
 
-    // try {
-    //   const txReceipt = await writeAsync();
-    //   console.log('Transaction receipt:', txReceipt);
-    // } catch (error) {
-    //   console.error('Error minting tokens:', error);
-    // }
-  };
+  //   // try {
+  //   //   const txReceipt = await writeAsync();
+  //   //   console.log('Transaction receipt:', txReceipt);
+  //   // } catch (error) {
+  //   //   console.error('Error minting tokens:', error);
+  //   // }
+  // };
 
   return (
     <>
