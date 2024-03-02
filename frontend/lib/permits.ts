@@ -10,12 +10,9 @@ export async function generatePermits(
   provider: EthersProvider,
 ) {
   console.log(provider);
-  const fhenix = new FhenixClient({ provider });
   const permit = await getPermit(contractAddress, provider!);
 
-  fhenix.storePermit(permit);
-
-  return fhenix;
+  return permit;
 }
 
 export async function revokePermits(

@@ -10,14 +10,60 @@ import {
 } from "@/app/components/ui/table";
 import { AvatarImage, Avatar, AvatarFallback } from "../components/ui/avatar";
 import Link from "next/link";
+import { useAccount } from "wagmi";
+
 import { Button } from "../components/ui/button";
-import { getPermit } from "fhenixjs";
+import { getPermit, FhenixClient } from "fhenixjs";
 import { useState } from "react";
+import { mockTokenABI } from "@/abi/mockTokenABI";
 
-export default function Token({ token, provider }: any) {
+import { generatePermits } from "@/lib/permits";
+import { ethers } from "ethers";
+import { useEthersSigner } from "@/lib/ethers";
+
+export default function Token({ token, provider, fhenix }: any) {
   const [balance, setBalance] = useState<string>("Encrypted");
+  const signer = useEthersSigner();
+  const { address } = useAccount();
 
-  async function getEncryptedBalance() {}
+  async function getEncryptedBalance() {
+    const permit = await generatePermits(token.address, provider);
+    fhenix.storePermit(permit);
+    const permission = await fhenix!.extractPermitPermission(permit!);
+
+    console.log(token.address);
+    const contract = {
+      contract: new ethers.Contract(token.address, mockTokenABI, signer as any),
+      address: token.address,
+    };
+
+    const eBalance = await contract.contract.balanceOfSealed(
+      address,
+      permission,
+    );
+    const DecryptedBalance = fhenix!.unseal(token.address, eBalance);
+    setBalance(String(DecryptedBalance));
+  }
+
+  async function handleMint() {
+    console.log(token.address);
+    console.log(signer);
+
+    const contract = {
+      contract: new ethers.Contract(token.address, mockTokenABI, signer as any),
+      address: token.address,
+    };
+    console.log(contract);
+    const mintValue = await fhenix.encrypt_uint16(100);
+    try {
+      const tx = await contract.contract.mintEncrypted(mintValue);
+      await tx.wait();
+    } catch (error) {
+      console.log(error);
+    }
+
+    getEncryptedBalance();
+  }
 
   const externalMintUrl = "https://faucet.fhenix.zone/";
 
@@ -62,17 +108,7 @@ export default function Token({ token, provider }: any) {
           </Link>
         ) : (
           // <Button onClick={handleMint}>Mint</Button>
-          <Button
-            onClick={async () => {
-              const permit = await getPermit(
-                "0x853882bb6c8C9B0ACB94d12C8C21E3c3173eec9d",
-                provider,
-              );
-              console.log(permit);
-            }}
-          >
-            Mint
-          </Button>
+          <Button onClick={handleMint}>Mint</Button>
         )}
       </TableCell>
     </TableRow>

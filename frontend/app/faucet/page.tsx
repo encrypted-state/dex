@@ -66,7 +66,7 @@ export default function FaucetPage() {
         </TableHeader>
         <TableBody>
           {tokens.map((token, i) => (
-            <Token token={token} provider={provider} key={i} />
+            <Token token={token} provider={provider} key={i} fhenix={fhenix} />
           ))}
         </TableBody>
       </Table>
