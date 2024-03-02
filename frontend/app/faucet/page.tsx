@@ -57,7 +57,7 @@ export default function FaucetPage() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[140px]">Asset</TableHead>{" "}
-            <TableHead className="pl-4 w-[110px]">Balance</TableHead>{" "}
+            <TableHead className="pl-2 w-[110px]">Balance</TableHead>{" "}
             <TableHead>Address</TableHead>
             <TableHead className="w-[100px] text-center"></TableHead>
           </TableRow>

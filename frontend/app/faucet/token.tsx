@@ -96,16 +96,16 @@ export default function Token({ token, provider, fhenix }: any) {
       <TableCell className="pl-2 w-[110px]">
         {" "}
         <p>
-        {token.address === "NATIVE" ? (
-          balance
-        ) : balance === "Encrypted" ? (
-          <Button className="ml-auto" variant="outline" onClick={getEncryptedBalance}>
-            decrypt
-          </Button>
+        {address ? (
+          token.address === "NATIVE" ? balance : balance === "Encrypted" ? (
+            <Button className="ml-auto" variant="outline" onClick={getEncryptedBalance}>
+              decrypt
+            </Button>
+          ) : balance
         ) : (
-          balance
+          "Connect"
         )}
-        </p>
+    </p>
       </TableCell>{" "}
       {/* Adjusted padding and width */}
       <TableCell>{token.address}</TableCell>

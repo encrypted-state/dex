@@ -60,7 +60,7 @@ const TokenSelector = ({
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const filteredTokens = tokens.filter(
-    (token) => !excludeToken || token.symbol !== excludeToken.symbol,
+    (token) => token.address !== "NATIVE" && (!excludeToken || token.symbol !== excludeToken.symbol),
   );
 
   return (
@@ -309,7 +309,7 @@ const MainButton = ({
 };
 
 const TokenPair = ({ type }: { type: "swap" | "liquidity" }) => {
-  const [topToken, setTopToken] = useState<Token>(tokens[0]);
+  const [topToken, setTopToken] = useState<Token>(tokens[1]);
   const [bottomToken, setBottomToken] = useState<Token | null>(null);
   const [topTokenAmount, setTopTokenAmount] = useState<number>(0);
   const [bottomTokenAmount, setBottomTokenAmount] = useState<number>(0);
