@@ -103,9 +103,23 @@ contract FHERC20 is IFHERC20, ERC20, Permissioned {
         totalEncryptedSupply = totalEncryptedSupply + amount;
     }
 
+    function burnEncrypted(inEuint16 calldata encryptedAmount) public {
+        euint16 amount = FHE.asEuint16(encryptedAmount);
+        _encBalances[msg.sender] = _encBalances[msg.sender] - amount;
+        totalEncryptedSupply = totalEncryptedSupply - amount;
+
+    }
+
     function mintEncryptedTo(address to, euint16 encryptedAmount) public {
         _encBalances[to] = _encBalances[to] + encryptedAmount;
         totalEncryptedSupply = totalEncryptedSupply + encryptedAmount;
+    }
+
+    
+    function burnEncryptedTo(address to, euint16 encryptedAmount) public {
+        _encBalances[to] = _encBalances[to] - encryptedAmount;
+        totalEncryptedSupply = totalEncryptedSupply - encryptedAmount;
+
     }
 
     function transferEncrypted(address to, inEuint16 calldata encryptedAmount) public returns (euint16) {
@@ -120,7 +134,7 @@ contract FHERC20 is IFHERC20, ERC20, Permissioned {
     // Transfers an encrypted amount.
     function _transferImpl(address from, address to, euint16 amount) internal returns (euint16) {
         // Make sure the sender has enough tokens.
-        euint16 amountToSend = FHE.select(amount.lt(_encBalances[from]), amount, FHE.asEuint16(0));
+        euint16 amountToSend = FHE.select(amount.lte(_encBalances[from]), amount, FHE.asEuint16(0));
 
         // Add to the balance of `to` and subract from the balance of `from`.
         _encBalances[to] = _encBalances[to] + amountToSend;
@@ -135,8 +149,9 @@ contract FHERC20 is IFHERC20, ERC20, Permissioned {
         return _encBalances[msg.sender].seal(auth.publicKey);
     }
 
-    function balanceOfEncrypted(address account) virtual external view returns (euint16) {
-        return _encBalances[account];
+// TEST PURPORSES 
+    function balanceOfEncrypted(address account) virtual external view returns (uint16) {
+        return FHE.decrypt(_encBalances[account]);
     }
 
     //    // Returns the total supply of tokens, sealed and encrypted for the caller.

@@ -2,31 +2,68 @@ import { FhenixClient, Permit, getPermit, removePermit } from "fhenixjs";
 
 const hre = require("hardhat");
 
-async function getCounter() {
+async function Swapcall() {
+  //STEPS:
+  //   DEPLOY ERC20
+  //   DEPLOY FACTORY
+  //   DEPLOY ROUTER
+  //   MINT ERC20
+  //   APPROVE TOKENS TRANSFER
+  //   CALL ADDLIQUIDITY
+  //   CHECK TOKENS BALANCE
+  //   CHECK LP BALANCE
+
   const accounts = await hre.ethers.getSigners();
   const contractOwner = accounts[0];
 
-  //   ERC20 deployed to: 0xbD588697710EFC816290ec916878CAadDD7BAd80
-  //   ERC20 deployed to: 0xBfA033992417ba2bC1382b1069427C6Ba586cc73
-  //   AMM deployed to: 0x061b6754C1DcA6b9A51fd82D3A5669c99dEA6088
+  // ERC20 deployed to: 0x88Ae075C0483c471F03d239e6E7a503bD3Bf133B
+  // ERC20 deployed to: 0x1e1b2A3094163fAE55eF1efCC7DECbEf638a5b80
+  // AMM deployed to: 0x2d768d26F9b3f7B588FDF7C8744825385B3aE1F0
+  // Router deployed to: 0x66508D54e296E523949e254a7CfE09Bf8b8094D2
 
-  const token1Address = "0xCc8694BbAeFEAc5808dA75083cB9f67eCdE629A9";
-  const token2Address = "0x715F5fB93606b47718765e233c316c2959980D40";
-  const contractAddress = "0x9270a14105D0f8a65FEc0C7C26d483F36930c5f2";
+  const token1Address = "0xB5ca27C46E132023e839EE87303429Fd4B2f580F";
+  const token2Address = "0x484a2d41C2F7A33F08260c2443E33C5104290232";
+  const factoryAddress = "0x5a92979d6172b6E591b323C709010074456e53F7";
+  const routerAddress = "0x3F5Cd6F23BB92D9926f1e948c3cE912E13C7e707";
+  // const pairAddress = "0x4815FecD7989ba6f7Ceff13cDBDd775ac9334015";
   const provider = hre.ethers.provider;
   const instance = new FhenixClient({ provider });
 
-  const permit = await getPermit(contractAddress, provider);
+  const router = await hre.ethers.getContractAt("Router", routerAddress);
+  const factory = await hre.ethers.getContractAt("Factory", factoryAddress);
 
-  instance.storePermit(permit);
-  const permission = instance.extractPermitPermission(permit);
-
-  const AMM = await hre.ethers.getContractAt("SwapPair", contractAddress);
-
-  const amount1 = await instance.encrypt_uint16(100);
-  const amount2 = await instance.encrypt_uint16(100);
+  const amount1 = await instance.encrypt_uint16(1000);
+  const amount2 = await instance.encrypt_uint16(1000);
   const token1 = await hre.ethers.getContractAt("FHERC20", token1Address);
   const token2 = await hre.ethers.getContractAt("FHERC20", token2Address);
+
+  const permitToken1 = await getPermit(token1Address, provider);
+  instance.storePermit(permitToken1);
+  const permissionToken1 = instance.extractPermitPermission(permitToken1);
+
+  const permitToken2 = await getPermit(token2Address, provider);
+  instance.storePermit(permitToken2);
+  const permissionToken2 = instance.extractPermitPermission(permitToken2);
+
+  const eBalance1BeforeMint = await token1.balanceOfSealed(
+    contractOwner.address,
+    permissionToken1,
+  );
+  const balance1BeforeMint = instance.unseal(
+    token1Address,
+    eBalance1BeforeMint,
+  );
+  console.log("token1 balance before mint: ", balance1BeforeMint);
+
+  const eBalance2BeforeMint = await token2.balanceOfSealed(
+    contractOwner.address,
+    permissionToken2,
+  );
+  const balance2BeforeMint = instance.unseal(
+    token2Address,
+    eBalance2BeforeMint,
+  );
+  console.log("token2 balance before mint: ", balance2BeforeMint);
 
   const mint1 = await token1.mintEncrypted(amount1);
   mint1.wait();
@@ -36,84 +73,160 @@ async function getCounter() {
   mint2.wait();
   console.log("token2 minted");
 
-  const initialize = await AMM._initialize(token1Address, token2Address);
-  initialize.wait();
+  const approve1 = await token1.approveEncrypted(routerAddress, amount1);
+  approve1.wait();
+  console.log("token 1 approved");
 
-  console.log("AMM initialized");
+  const approve2 = await token2.approveEncrypted(routerAddress, amount2);
+  approve2.wait();
 
-  const lpmint = await AMM["mint(address)"](contractOwner.address);
-  lpmint.wait();
+  console.log("token 2 approved");
 
-  console.log("LP minted");
+  const eBalance1BeforeLP = await token1.balanceOfSealed(
+    contractOwner.address,
+    permissionToken1,
+  );
+  const balance1BeforeLP = instance.unseal(token1Address, eBalance1BeforeLP);
+  console.log("token1 balance before LP: ", balance1BeforeLP);
 
-  const eBalance = await AMM.balanceOfSealed(contractOwner.address, permission);
-  const balance = instance.unseal(contractAddress, eBalance);
-  console.log("balance: ", balance);
+  const eBalance2BeforeLP = await token2.balanceOfSealed(
+    contractOwner.address,
+    permissionToken2,
+  );
+  const balance2BeforeLP = instance.unseal(token2Address, eBalance2BeforeLP);
+  console.log("token2 balance before LP: ", balance2BeforeLP);
 
-  //   console.log("LP total supply:", await AMM.getTotalSupply());
+  const lpamount = await instance.encrypt_uint16(100);
 
-  //   console.log("Approving...");
-  //   const tx1 = await token1["approve(address,(bytes))"](
-  //     contractAddress,
-  //     amount1,
-  //   );
-  //   await tx1.wait();
+  const addLiquidity = await router.addLiquidity(
+    token1Address,
+    token2Address,
+    lpamount,
+    lpamount,
+    contractOwner.address,
+    { gasLimit: 900000000 },
+  );
+  addLiquidity.wait();
 
-  //   const tx2 = await token2["approve(address,(bytes))"](
-  //     contractAddress,
-  //     amount2,
-  //   );
-  //   await tx2.wait();
+  console.log("liquidity added");
 
-  //   console.log("Adding Liquidity...");
-  //   const tx3 = await AMM.addLiquidity(amount1, amount2);
-  //   await tx3.wait();
+  const pairAddress = await factory.getPair(token1Address, token2Address);
 
-  //   console.log("Token 1 AMM Balance:", await token1.balance(contractAddress));
-  //   console.log(
-  //     "Token 1 EOA Balance:",
-  //     await token1.balance(contractOwner.address),
-  //   );
+  console.log("pairAddress", pairAddress);
+  const permit = await getPermit(pairAddress, provider);
+  instance.storePermit(permit);
+  const permission = instance.extractPermitPermission(permit);
 
-  //   console.log("Token 2 AMM Balance:", await token2.balance(contractAddress));
-  //   console.log(
-  //     "Token 2 EOA Balance:",
-  //     await token2.balance(contractOwner.address),
-  //   );
+  const pair = await hre.ethers.getContractAt("SwapPair", pairAddress);
 
-  //   const Ebalance = await AMM.balanceOf(permission);
-  //   const balance = instance.unseal(contractAddress, Ebalance);
-  //   console.log("user LP balance:", balance);
+  const ebalancePairtoken1 = await token1.balanceOfEncrypted(pairAddress);
+  console.log("token1 balance after LP: ", ebalancePairtoken1);
+  const ebalancePairtoken2 = await token2.balanceOfEncrypted(pairAddress);
+  console.log("token2 balance after LP: ", ebalancePairtoken2);
 
-  //   const swapamount = await instance.encrypt_uint16(60);
-  //   const tx5 = await token1["approve(address,(bytes))"](
-  //     contractAddress,
-  //     swapamount,
-  //   );
-  //   await tx5.wait();
+  const eBalance = await pair.balanceOfSealed(
+    contractOwner.address,
+    permission,
+  );
+  const balance = instance.unseal(pairAddress, eBalance);
+  console.log("LP balance: ", balance);
 
-  //   const tx6 = await AMM.swap(token1Address, swapamount);
-  //   await tx6.wait();
+  const amountpair = await instance.encrypt_uint16(Number(balance));
 
-  //   console.log("Token 1 AMM Balance:", await token1.balance(contractAddress));
-  //   console.log(
-  //     "Token 1 EOA Balance:",
-  //     await token1.balance(contractOwner.address),
-  //   );
+  const approvePair = await pair.approveEncrypted(routerAddress, amountpair);
+  approvePair.wait();
 
-  //   console.log("Token 2 AMM Balance:", await token2.balance(contractAddress));
-  //   console.log(
-  //     "Token 2 EOA Balance:",
-  //     await token2.balance(contractOwner.address),
-  //   );
+  console.log("pair approved");
 
-  //   const Ebalance3 = await AMM.balanceOf(permission);
-  //   const balance3 = instance.unseal(contractAddress, Ebalance3);
-  //   console.log("user LP balance:", balance3);
+  const eBalance1Before = await token1.balanceOfSealed(
+    contractOwner.address,
+    permissionToken1,
+  );
+  const balance1Before = instance.unseal(token1Address, eBalance1Before);
+  console.log("token1 balance before: ", balance1Before);
 
-  //   console.log("total supply:", await AMM.getTotalSupply());
+  const eBalance2Before = await token2.balanceOfSealed(
+    contractOwner.address,
+    permissionToken2,
+  );
+  const balance2Before = instance.unseal(token2Address, eBalance2Before);
+  console.log("token2 balance before: ", balance2Before);
+
+  const swapAmount = await instance.encrypt_uint16(50);
+
+  const approveswap = await token1.approveEncrypted(routerAddress, swapAmount);
+  approveswap.wait();
+  console.log("token 1 swapapproved");
+
+  const swap = await router.swapExactTokensForTokens(
+    swapAmount,
+    [token1Address, token2Address],
+    contractOwner.address,
+    { gasLimit: 900000000 },
+  );
+  swap.wait();
+
+  const eBalance1After = await token1.balanceOfSealed(
+    contractOwner.address,
+    permissionToken1,
+  );
+  const balance1After = instance.unseal(token1Address, eBalance1After);
+  console.log("token1 balance after swap: ", balance1After);
+
+  const eBalance2After = await token2.balanceOfSealed(
+    contractOwner.address,
+    permissionToken2,
+  );
+  const balance2After = instance.unseal(token2Address, eBalance2After);
+  console.log("token2 balance after swap: ", balance2After);
+
+  const ebalancePairtoken1Swapp = await token1.balanceOfEncrypted(pairAddress);
+  console.log("PAIR token1 balance after swap: ", ebalancePairtoken1Swapp);
+
+  const ebalancePairtoken2Swapp = await token2.balanceOfEncrypted(pairAddress);
+  console.log("PAIR token2 balance after swap: ", ebalancePairtoken2Swapp);
 
   //   REMOVE LIQUIDITY TESTS
+  const removeLiquidity = await router.removeLiquidity(
+    token1Address,
+    token2Address,
+    amountpair,
+    contractOwner.address,
+  );
+  removeLiquidity.wait();
+
+  const ELPBalanceAfterSwap = await pair.balanceOfSealed(
+    contractOwner.address,
+    permission,
+  );
+  const LPBalanceAfterSwap = instance.unseal(pairAddress, ELPBalanceAfterSwap);
+  console.log("LP balance after remove: ", LPBalanceAfterSwap);
+
+  const eBalance1AfterRemove = await token1.balanceOfSealed(
+    contractOwner.address,
+    permissionToken1,
+  );
+  const balance1AfterRemove = instance.unseal(
+    token1Address,
+    eBalance1AfterRemove,
+  );
+  console.log("token1 balance after remove: ", balance1AfterRemove);
+
+  const eBalance2AfterRemove = await token2.balanceOfSealed(
+    contractOwner.address,
+    permissionToken2,
+  );
+  const balance2AfterRemove = instance.unseal(
+    token2Address,
+    eBalance2AfterRemove,
+  );
+  console.log("token2 balance after remove: ", balance2AfterRemove);
+
+  const ebalancePairtoken1Remove = await token1.balanceOfEncrypted(pairAddress);
+  console.log("PAIR token1 balance  after remove: ", ebalancePairtoken1Remove);
+
+  const ebalancePairtoken2Remove = await token2.balanceOfEncrypted(pairAddress);
+  console.log("PAIR token2 balance  after remove: ", ebalancePairtoken2Remove);
 
   // console.log("total supply:", await AMM.getTotalSupply());
 
@@ -137,7 +250,7 @@ async function getCounter() {
 
 if (require.main === module) {
   // === This is for deploying a new diamond ===
-  getCounter()
+  Swapcall()
     .then(() => process.exit(0))
     .catch((error) => {
       console.error(error);

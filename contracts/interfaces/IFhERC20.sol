@@ -33,7 +33,7 @@ interface IFHERC20 {
     /**
      * @dev Returns the value of tokens owned by `account`, sealed and encrypted for the caller.
      */
-    function balanceOfEncrypted(address account) external view returns (euint16);
+    function balanceOfEncrypted(address account) external view returns (uint16);
 
     /**
      * @dev Moves a `value` amount of tokens from the caller's account to `to`.
