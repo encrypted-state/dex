@@ -46,9 +46,7 @@ import { routerABI } from "@/abi/routerABI";
 import { fherc20ABI } from "@/abi/fherc20ABI";
 import { FhenixClient } from "fhenixjs";
 
-
-
-   // fix this
+// fix this
 const routerAddress: string = "0x58295167A9c2fecE5C6C709846EaAdCe3668Ed5F";
 
 const TokenSelector = ({
@@ -128,46 +126,55 @@ const TokenCard = ({
   selectedToken,
   onSelectToken,
   excludeToken,
+  amount,
+  setAmount,
 }: {
   type: "receive" | "pay" | "provide";
   className?: string;
   selectedToken: Token | null;
   onSelectToken: (token: Token) => void;
   excludeToken: Token | null;
-}) => (
-  <Card className={` dark:bg-zinc-900 dark:border-0 ${className}`}>
-    <CardHeader className={`p-5 pb-1`}>
-      <CardTitle className="text-base font-medium text-zinc-700 dark:text-zinc-300">
-        You {type}
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="px-5 pb-4">
-      <div className="flex flex-row gap-2 pb-2">
-        <Input
-          className="bg-transparent text-3xl border-0 p-0 focus-visible:ring-0 focus-visible:border-0 focus-visible:outline-none focus-visible:ring-offset-0"
-          placeholder="0"
-          min={0}
-        />
-        <Dialog>
-          <DialogTrigger asChild>
-            <TokenSelector
-              selectedToken={selectedToken}
-              onSelectToken={onSelectToken}
-              excludeToken={excludeToken}
-            />
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>tokens</DialogTitle>
-              <DialogDescription>tokens</DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      </div>
-      {/* <p className="p-0 text-sm text-zinc-500">(estimated market value here)</p> */}
-    </CardContent>
-  </Card>
-);
+  setAmount: (amount: number) => void;
+  amount: number;
+}) => {
+  return (
+    <Card className={` dark:bg-zinc-900 dark:border-0 ${className}`}>
+      <CardHeader className={`p-5 pb-1`}>
+        <CardTitle className="text-base font-medium text-zinc-700 dark:text-zinc-300">
+          You {type}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="px-5 pb-4">
+        <div className="flex flex-row gap-2 pb-2">
+          <Input
+            className="bg-transparent text-3xl border-0 p-0 focus-visible:ring-0 focus-visible:border-0 focus-visible:outline-none focus-visible:ring-offset-0"
+            placeholder="0"
+            type="number"
+            min={0}
+            value={amount} // ...force the input's value to match the state variable...
+            onChange={(e) => setAmount(Number(e.target.value))}
+          />
+          <Dialog>
+            <DialogTrigger asChild>
+              <TokenSelector
+                selectedToken={selectedToken}
+                onSelectToken={onSelectToken}
+                excludeToken={excludeToken}
+              />
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>tokens</DialogTitle>
+                <DialogDescription>tokens</DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        </div>
+        {/* <p className="p-0 text-sm text-zinc-500">(estimated market value here)</p> */}
+      </CardContent>
+    </Card>
+  );
+};
 
 const SwapSwitchButton = ({ onClick }: { onClick: () => void }) => (
   <Button
@@ -190,10 +197,14 @@ const MainButton = ({
   type,
   bottomToken,
   topToken,
+  AmountIn,
+  AmountOut,
 }: {
   type: "swap" | "liquidity";
   bottomToken: Token;
   topToken: Token;
+  AmountIn: number;
+  AmountOut: number;
 }) => {
   const { isConnected } = useAccount();
   const signer: any = useEthersSigner();
@@ -202,29 +213,30 @@ const MainButton = ({
   const provider = new ethers.BrowserProvider(window.ethereum);
   const fhenix = new FhenixClient({ provider });
 
-
   async function handleSwap() {
-
-    const amountTokenIn = await fhenix.encrypt_uint16(50);
+    const amountTokenIn = await fhenix.encrypt_uint16(AmountIn);
 
     const tokenInContract = {
-      contract: new ethers.Contract(topToken.address, fherc20ABI, signer as any),
+      contract: new ethers.Contract(
+        topToken.address,
+        fherc20ABI,
+        signer as any,
+      ),
       address: topToken.address,
     };
 
-    const approve = await tokenInContract.contract.approveEncrypted(routerAddress, amountTokenIn);
+    const approve = await tokenInContract.contract.approveEncrypted(
+      routerAddress,
+      amountTokenIn,
+    );
     approve.wait();
 
-    console.log("swap", topToken, bottomToken);
     const RouterContract = {
       //Add router contract address and router ABI
       contract: new ethers.Contract(routerAddress, routerABI, signer as any),
       address: routerAddress,
     };
 
-    console.log(  amountTokenIn,
-      [topToken.address, bottomToken.address],
-      address,)
     // get userInput on toptoken and address of user
     const swap = await RouterContract.contract.swapExactTokensForTokens(
       amountTokenIn,
@@ -235,25 +247,37 @@ const MainButton = ({
   }
 
   async function handleAddLiquidity() {
-
-    const amountTokenTop = await fhenix.encrypt_uint16(50);
-    const amountTokenBottom = await fhenix.encrypt_uint16(50);
+    const amountTokenTop = await fhenix.encrypt_uint16(AmountIn);
+    const amountTokenBottom = await fhenix.encrypt_uint16(AmountOut);
     const tokenContract1 = {
-      contract: new ethers.Contract(topToken.address, fherc20ABI, signer as any),
+      contract: new ethers.Contract(
+        topToken.address,
+        fherc20ABI,
+        signer as any,
+      ),
       address: topToken.address,
     };
     const tokenContract2 = {
-      contract: new ethers.Contract(bottomToken.address, fherc20ABI, signer as any),
+      contract: new ethers.Contract(
+        bottomToken.address,
+        fherc20ABI,
+        signer as any,
+      ),
       address: bottomToken.address,
     };
-  
-    const approve1 = await tokenContract1.contract.approveEncrypted(routerAddress, amountTokenTop);
+
+    const approve1 = await tokenContract1.contract.approveEncrypted(
+      routerAddress,
+      amountTokenTop,
+    );
     approve1.wait();
 
-    const approve2 = await tokenContract2.contract.approveEncrypted(routerAddress, amountTokenBottom);
+    const approve2 = await tokenContract2.contract.approveEncrypted(
+      routerAddress,
+      amountTokenBottom,
+    );
     approve2.wait();
 
-    console.log("addLiquidity", topToken, bottomToken);
     const RouterContract = {
       contract: new ethers.Contract(routerAddress, routerABI, signer as any),
       address: routerAddress,
@@ -287,11 +311,15 @@ const MainButton = ({
 const TokenPair = ({ type }: { type: "swap" | "liquidity" }) => {
   const [topToken, setTopToken] = useState<Token>(tokens[0]);
   const [bottomToken, setBottomToken] = useState<Token | null>(null);
+  const [topTokenAmount, setTopTokenAmount] = useState<number>(0);
+  const [bottomTokenAmount, setBottomTokenAmount] = useState<number>(0);
 
   const switchTopAndBottomTokens = () => {
     if (!bottomToken) return;
     setTopToken(bottomToken);
+    setTopTokenAmount(0);
     setBottomToken(topToken);
+    setBottomTokenAmount(0);
   };
 
   return (
@@ -301,6 +329,8 @@ const TokenPair = ({ type }: { type: "swap" | "liquidity" }) => {
         selectedToken={topToken}
         onSelectToken={setTopToken}
         excludeToken={bottomToken}
+        amount={topTokenAmount}
+        setAmount={setTopTokenAmount}
       />
 
       <div className="w-full  flex flex-row items-center justify-center h-6">
@@ -317,8 +347,16 @@ const TokenPair = ({ type }: { type: "swap" | "liquidity" }) => {
         selectedToken={bottomToken}
         onSelectToken={setBottomToken}
         excludeToken={topToken}
+        amount={bottomTokenAmount}
+        setAmount={setBottomTokenAmount}
       />
-      <MainButton type={type} bottomToken={bottomToken!} topToken={topToken} />
+      <MainButton
+        type={type}
+        bottomToken={bottomToken!}
+        topToken={topToken}
+        AmountIn={topTokenAmount}
+        AmountOut={bottomTokenAmount}
+      />
     </div>
   );
 };
