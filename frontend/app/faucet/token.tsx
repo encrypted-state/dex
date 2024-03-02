@@ -14,17 +14,32 @@ import { useAccount } from "wagmi";
 
 import { Button } from "../components/ui/button";
 import { getPermit, FhenixClient } from "fhenixjs";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { mockTokenABI } from "@/abi/mockTokenABI";
 
 import { generatePermits } from "@/lib/permits";
-import { ethers } from "ethers";
+import { ethers, formatEther } from "ethers";
 import { useEthersSigner } from "@/lib/ethers";
 
 export default function Token({ token, provider, fhenix }: any) {
   const [balance, setBalance] = useState<string>("Encrypted");
   const signer = useEthersSigner();
   const { address } = useAccount();
+
+  const getNativeBalance = useCallback(async () => {
+    try {
+      const balance = await provider.getBalance(address);
+      setBalance(formatEther(balance));
+    } catch (error) {
+      console.error("Error fetching native balance:", error);
+    }
+  }, [provider, address, setBalance]);
+  
+  useEffect(() => {
+    if (token.address === "NATIVE") {
+      getNativeBalance();
+    }
+  }, [token.address, getNativeBalance]);
 
   async function getEncryptedBalance() {
     const permit = await generatePermits(token.address, provider);
@@ -81,18 +96,15 @@ export default function Token({ token, provider, fhenix }: any) {
       <TableCell className="pl-2 w-[110px]">
         {" "}
         <p>
-          Balance:{" "}
-          {balance == "Encrypted" ? (
-            <Button
-              className="ml-auto"
-              variant="outline"
-              onClick={getEncryptedBalance}
-            >
-              decrypt
-            </Button>
-          ) : (
-            balance
-          )}
+        {token.address === "NATIVE" ? (
+          balance
+        ) : balance === "Encrypted" ? (
+          <Button className="ml-auto" variant="outline" onClick={getEncryptedBalance}>
+            decrypt
+          </Button>
+        ) : (
+          balance
+        )}
         </p>
       </TableCell>{" "}
       {/* Adjusted padding and width */}
