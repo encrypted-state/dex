@@ -39,6 +39,7 @@ import {
   CommandShortcut,
 } from "./ui/command";
 import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
+import { toast } from "sonner";
 import { Token, tokens } from "@/lib/tokens";
 import { ethers } from "ethers";
 import { useEthersSigner } from "@/lib/ethers";
@@ -214,82 +215,99 @@ const MainButton = ({
   const fhenix = new FhenixClient({ provider });
 
   async function handleSwap() {
-    const amountTokenIn = await fhenix.encrypt_uint16(AmountIn);
+    try {
+      const amountTokenIn = await fhenix.encrypt_uint16(AmountIn);
 
-    const tokenInContract = {
-      contract: new ethers.Contract(
-        topToken.address,
-        fherc20ABI,
-        signer as any,
-      ),
-      address: topToken.address,
-    };
+      const tokenInContract = {
+        contract: new ethers.Contract(
+          topToken.address,
+          fherc20ABI,
+          signer as any,
+        ),
+        address: topToken.address,
+      };
+  
+      // approving tx
+      const approve = await tokenInContract.contract.approveEncrypted(
+        routerAddress,
+        amountTokenIn,
+      );
+      approve.wait();
+  
+      const RouterContract = {
+        contract: new ethers.Contract(routerAddress, routerABI, signer as any),
+        address: routerAddress,
+      };
 
-    const approve = await tokenInContract.contract.approveEncrypted(
-      routerAddress,
-      amountTokenIn,
-    );
-    approve.wait();
-
-    const RouterContract = {
-      //Add router contract address and router ABI
-      contract: new ethers.Contract(routerAddress, routerABI, signer as any),
-      address: routerAddress,
-    };
-
-    // get userInput on toptoken and address of user
-    const swap = await RouterContract.contract.swapExactTokensForTokens(
-      amountTokenIn,
-      [topToken.address, bottomToken.address],
-      address,
-    );
-    swap.wait();
+      toast('Your transaction is pending...');
+  
+      // performing swap
+      const swap = await RouterContract.contract.swapExactTokensForTokens(
+        amountTokenIn,
+        [topToken.address, bottomToken.address],
+        address,
+      );
+      await swap.wait();
+      toast.success('Transaction successful');
+    } catch (error) {
+      toast.error('Transaction failed');
+      console.error(error);
+    }
   }
 
   async function handleAddLiquidity() {
-    const amountTokenTop = await fhenix.encrypt_uint16(AmountIn);
-    const amountTokenBottom = await fhenix.encrypt_uint16(AmountOut);
-    const tokenContract1 = {
-      contract: new ethers.Contract(
+    try {
+      const amountTokenTop = await fhenix.encrypt_uint16(AmountIn);
+      const amountTokenBottom = await fhenix.encrypt_uint16(AmountOut);
+      const tokenContract1 = {
+        contract: new ethers.Contract(
+          topToken.address,
+          fherc20ABI,
+          signer as any,
+        ),
+        address: topToken.address,
+      };
+      const tokenContract2 = {
+        contract: new ethers.Contract(
+          bottomToken.address,
+          fherc20ABI,
+          signer as any,
+        ),
+        address: bottomToken.address,
+      };
+  
+      const approve1 = await tokenContract1.contract.approveEncrypted(
+        routerAddress,
+        amountTokenTop,
+      );
+      approve1.wait();
+  
+      const approve2 = await tokenContract2.contract.approveEncrypted(
+        routerAddress,
+        amountTokenBottom,
+      );
+      approve2.wait();
+  
+      const RouterContract = {
+        contract: new ethers.Contract(routerAddress, routerABI, signer as any),
+        address: routerAddress,
+      };
+
+      toast('Your transaction is pending...');
+
+      const addliquidity = await RouterContract.contract.addLiquidity(
         topToken.address,
-        fherc20ABI,
-        signer as any,
-      ),
-      address: topToken.address,
-    };
-    const tokenContract2 = {
-      contract: new ethers.Contract(
         bottomToken.address,
-        fherc20ABI,
-        signer as any,
-      ),
-      address: bottomToken.address,
-    };
-
-    const approve1 = await tokenContract1.contract.approveEncrypted(
-      routerAddress,
-      amountTokenTop,
-    );
-    approve1.wait();
-
-    const approve2 = await tokenContract2.contract.approveEncrypted(
-      routerAddress,
-      amountTokenBottom,
-    );
-    approve2.wait();
-
-    const RouterContract = {
-      contract: new ethers.Contract(routerAddress, routerABI, signer as any),
-      address: routerAddress,
-    };
-    const addliquidity = await RouterContract.contract.addLiquidity(
-      topToken.address,
-      bottomToken.address,
-      amountTokenTop,
-      amountTokenBottom,
-      address,
-    );
-    await addliquidity.wait();
+        amountTokenTop,
+        amountTokenBottom,
+        address,
+      );
+      await addliquidity.wait();
+      toast.success('Successfully added liquidity');
+    } catch (error) {
+      toast.error('Unable to add liquidity');
+      console.error(error);
+    }
   }
   return (
     <>

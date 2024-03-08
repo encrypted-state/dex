@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 import { Web3Provider } from "./components/web3-provider";
 import Navbar from "./navbar";
 import { ethers } from "ethers";
-import { FhenixClient } from "fhenixjs";
+import { Toaster } from "./components/ui/toaster";
 export const metadata: Metadata = {
   title: "Donut",
 };
@@ -31,6 +31,7 @@ export default function RootLayout({
             <main className="w-full max-w-[800px]  flex flex-col  items-center mx-auto">
               {children}
             </main>
+            <Toaster position="top-right" duration={4000}/>
           </ThemeProvider>
         </body>
       </Web3Provider>
