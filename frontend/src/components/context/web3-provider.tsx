@@ -5,9 +5,9 @@ import { mainnet, sepolia } from "wagmi/chains";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import { ThemeProvider } from "./theme-provider";
+import { ThemeProvider } from "../theme-provider";
 
-import { fhenixfrontier } from "@/lib/custom-chains";
+import { fhenixfrontier } from "@/../lib/custom-chains";
 
 const config = createConfig(
   getDefaultConfig({

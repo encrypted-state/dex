@@ -1,13 +1,13 @@
 "use client";
-import { ConnectButton } from "./components/connect-button";
-import { ModeToggle } from "./components/mode-toggle";
+import { ConnectButton } from "@/components/connect-button";
+import { ModeToggle } from "@/components/mode-toggle";
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   navigationMenuTriggerStyle,
-} from "@/app/components/ui/navigation-menu";
+} from "@/components/ui/navigation-menu";
 import Image from "next/image";
 
 const Navbar = () => {

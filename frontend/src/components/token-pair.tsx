@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,8 +7,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/app/components/ui/card";
-import { Input } from "@/app/components/ui/input";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ArrowDown, CheckIcon, ChevronDownIcon, Plus } from "lucide-react";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "./connect-button";
@@ -20,12 +20,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { cn } from "@/lib/utils";
+import { cn } from "@/../lib/utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/app/components/ui/popover";
+} from "@/components/ui/popover";
 import { useState } from "react";
 import {
   Command,
@@ -40,13 +40,15 @@ import {
 } from "./ui/command";
 import { AvatarFallback, AvatarImage, Avatar } from "./ui/avatar";
 import { toast } from "sonner";
-import { Token, tokens } from "@/lib/tokens";
+import { Token, tokens } from "@/../lib/tokens";
 import { ethers } from "ethers";
-import { useEthersSigner } from "@/lib/ethers";
-import { routerABI } from "@/abi/routerABI";
-import { fherc20ABI } from "@/abi/fherc20ABI";
+import { useEthersSigner } from "@/../lib/ethers";
+import { routerABI } from "@/../abi/routerABI";
+import { fherc20ABI } from "@/../abi/fherc20ABI";
 import { FhenixClient } from "fhenixjs";
+import { ExternalProvider } from "@ethersproject/providers";
 
+declare var window: any;
 // fix this
 const routerAddress: string = "0x58295167A9c2fecE5C6C709846EaAdCe3668Ed5F";
 
@@ -61,7 +63,9 @@ const TokenSelector = ({
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const filteredTokens = tokens.filter(
-    (token) => token.address !== "NATIVE" && (!excludeToken || token.symbol !== excludeToken.symbol),
+    (token) =>
+      token.address !== "NATIVE" &&
+      (!excludeToken || token.symbol !== excludeToken.symbol),
   );
 
   return (
@@ -226,21 +230,21 @@ const MainButton = ({
         ),
         address: topToken.address,
       };
-  
+
       // approving tx
       const approve = await tokenInContract.contract.approveEncrypted(
         routerAddress,
         amountTokenIn,
       );
       approve.wait();
-  
+
       const RouterContract = {
         contract: new ethers.Contract(routerAddress, routerABI, signer as any),
         address: routerAddress,
       };
 
-      toast('Your transaction is pending...');
-  
+      toast("Your transaction is pending...");
+
       // performing swap
       const swap = await RouterContract.contract.swapExactTokensForTokens(
         amountTokenIn,
@@ -248,9 +252,9 @@ const MainButton = ({
         address,
       );
       await swap.wait();
-      toast.success('Transaction successful');
+      toast.success("Transaction successful");
     } catch (error) {
-      toast.error('Transaction failed');
+      toast.error("Transaction failed");
       console.error(error);
     }
   }
@@ -275,25 +279,25 @@ const MainButton = ({
         ),
         address: bottomToken.address,
       };
-  
+
       const approve1 = await tokenContract1.contract.approveEncrypted(
         routerAddress,
         amountTokenTop,
       );
       approve1.wait();
-  
+
       const approve2 = await tokenContract2.contract.approveEncrypted(
         routerAddress,
         amountTokenBottom,
       );
       approve2.wait();
-  
+
       const RouterContract = {
         contract: new ethers.Contract(routerAddress, routerABI, signer as any),
         address: routerAddress,
       };
 
-      toast('Your transaction is pending...');
+      toast("Your transaction is pending...");
 
       const addliquidity = await RouterContract.contract.addLiquidity(
         topToken.address,
@@ -303,9 +307,9 @@ const MainButton = ({
         address,
       );
       await addliquidity.wait();
-      toast.success('Successfully added liquidity');
+      toast.success("Successfully added liquidity");
     } catch (error) {
-      toast.error('Unable to add liquidity');
+      toast.error("Unable to add liquidity");
       console.error(error);
     }
   }

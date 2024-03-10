@@ -7,34 +7,39 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/app/components/ui/table";
-import { AvatarImage, Avatar, AvatarFallback } from "../components/ui/avatar";
+} from "@/components/ui/table";
+import { AvatarImage, Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 
-import { Button } from "../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { getPermit, FhenixClient } from "fhenixjs";
 import { useState, useEffect, useCallback } from "react";
-import { fherc20ABI } from "@/abi/fherc20ABI";
+import { fherc20ABI } from "@/../abi/fherc20ABI";
 
-import { generatePermits } from "@/lib/permits";
+import { generatePermits } from "@/../lib/permits";
 import { ethers, formatEther } from "ethers";
-import { useEthersSigner } from "@/lib/ethers";
+import { useEthersSigner } from "@/../lib/ethers";
 
-export default function Token({ token, provider, fhenix }: any) {
+declare var window: any;
+
+export default function Token({ token }: any) {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const fhenix = new FhenixClient({ provider });
+
   const [balance, setBalance] = useState<string>("Encrypted");
   const signer = useEthersSigner();
   const { address } = useAccount();
 
   const getNativeBalance = useCallback(async () => {
     try {
-      const balance = await provider.getBalance(address);
+      const balance = await provider.getBalance(address!);
       setBalance(formatEther(balance));
     } catch (error) {
       console.error("Error fetching native balance:", error);
     }
   }, [provider, address, setBalance]);
-  
+
   useEffect(() => {
     if (token.address === "NATIVE") {
       getNativeBalance();
@@ -96,16 +101,24 @@ export default function Token({ token, provider, fhenix }: any) {
       <TableCell className="pl-2 w-[110px]">
         {" "}
         <p>
-        {address ? (
-          token.address === "NATIVE" ? balance : balance === "Encrypted" ? (
-            <Button className="ml-auto" variant="outline" onClick={getEncryptedBalance}>
-              decrypt
-            </Button>
-          ) : balance
-        ) : (
-          "Connect"
-        )}
-    </p>
+          {address ? (
+            token.address === "NATIVE" ? (
+              balance
+            ) : balance === "Encrypted" ? (
+              <Button
+                className="ml-auto"
+                variant="outline"
+                onClick={getEncryptedBalance}
+              >
+                decrypt
+              </Button>
+            ) : (
+              balance
+            )
+          ) : (
+            "Connect"
+          )}
+        </p>
       </TableCell>{" "}
       {/* Adjusted padding and width */}
       <TableCell>{token.address}</TableCell>
