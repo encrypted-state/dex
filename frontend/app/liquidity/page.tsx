@@ -1,5 +1,4 @@
-"use client";
-
+export const dynamic = "force-dynamic";
 import TokenPair from "../components/token-pair";
 
 export default function LiquidityPage() {
