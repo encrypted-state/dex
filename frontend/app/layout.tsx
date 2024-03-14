@@ -31,7 +31,7 @@ export default function RootLayout({
             <main className="w-full max-w-[800px]  flex flex-col  items-center mx-auto">
               {children}
             </main>
-            <Toaster position="top-right" duration={4000}/>
+            <Toaster position="top-center" duration={5000} richColors/>
           </ThemeProvider>
         </body>
       </Web3Provider>

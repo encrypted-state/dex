@@ -1,3 +1,5 @@
+// TODO: the code related to the liquidity can be removed
+
 "use client";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -247,8 +249,14 @@ const MainButton = ({
         [topToken.address, bottomToken.address],
         address,
       );
-      await swap.wait();
-      toast.success('Transaction successful');
+      // fix generated link, receipt.transactionHash is not populating
+      const receipt = await swap.wait();
+      toast.success('Transaction successful!', {
+        action: {
+          label: 'View',
+          onClick: () => window.open(`https://explorer.testnet.fhenix.zone/tx/${receipt.transactionHash}`, '_blank')
+        }
+      });
     } catch (error) {
       toast.error('Transaction failed');
       console.error(error);
