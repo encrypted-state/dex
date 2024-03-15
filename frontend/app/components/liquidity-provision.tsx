@@ -24,6 +24,13 @@ import {
   CardTitle,
 } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/app/components/ui/tabs";
+import { Slider } from "@/app/components/ui/slider";
 
 const routerAddress: string = "0x58295167A9c2fecE5C6C709846EaAdCe3668Ed5F";
 
@@ -80,11 +87,34 @@ const ProvideLiquidityMiddleButton = () => (
   </div>
 );
 
+type PercentageInputProps = {
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+const PercentageInput: React.FC<PercentageInputProps> = ({
+  value,
+  onChange,
+}) => (
+  <input
+    type="number"
+    className="w-16 text-center bg-transparent border-none focus:ring-0"
+    value={value}
+    onChange={onChange}
+    min={0}
+    max={100}
+  />
+);
+
 const LiquidityProvision = () => {
   const [topToken, setTopToken] = useState<Token>(tokens[1]);
   const [bottomToken, setBottomToken] = useState<Token | null>(null);
   const [topTokenAmount, setTopTokenAmount] = useState<number>(0);
   const [bottomTokenAmount, setBottomTokenAmount] = useState<number>(0);
+
+  // for remove liquidity slider
+  const [selectedPercentage, setSelectedPercentage] = useState<number[]>([0]);
+  const [inputPercentage, setInputPercentage] = useState("0");
 
   const { isConnected } = useAccount();
   const signer: any = useEthersSigner();
@@ -148,37 +178,124 @@ const LiquidityProvision = () => {
     }
   };
 
+  // TODO: implement this
+  const handleRemoveLiquidity  = async () => {
+    toast.error("Unable to remove liquidity");
+  }
+
+  const handleSliderChange = (values: number[]) => {
+    const newValue = values[0];
+    setSelectedPercentage(values);
+    setInputPercentage(newValue.toString());
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = Number(e.target.value);
+    if (newValue >= 0 && newValue <= 100) {
+      setInputPercentage(newValue.toString());
+      setSelectedPercentage([Number(newValue)]);
+    }
+  };
+
+  const handlePresetPercentageClick = (percentage: number) => {
+    setSelectedPercentage([percentage]);
+    setInputPercentage(percentage.toString());
+  };
+
   return (
-    <div className="w-[450px]">
-      <LiquidityTokenCard
-        token={topToken}
-        amount={topTokenAmount}
-        setAmount={setTopTokenAmount}
-      />
-
-      <div className="w-full  flex flex-row items-center justify-center h-2 pt-2">
-        <ProvideLiquidityMiddleButton />
-      </div>
-
-      {bottomToken && (
-        <LiquidityTokenCard
-          token={bottomToken}
-          amount={bottomTokenAmount}
-          setAmount={setBottomTokenAmount}
-        />
-      )}
-
-      {isConnected ? (
-        <Button
-          className="w-full text-base mt-1"
-          size={"lg"}
-          onClick={handleAddLiquidity}
+    <div className="w-full max-w-md mx-auto">
+      <Tabs defaultValue="add" className="mb-4">
+        <TabsList
+          aria-label="Manage Liquidity"
+          className="flex space-x-1 bg-zinc-900 p-1 rounded-lg"
         >
-          Add
-        </Button>
-      ) : (
-        <ConnectButton size={"lg"} className="w-full text-base mt-1" />
-      )}
+          <TabsTrigger value="add" className="flex-1">
+            Add
+          </TabsTrigger>
+          <TabsTrigger value="remove" className="flex-1">
+            Remove
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="add" className="mt-4">
+          <div>
+            <LiquidityTokenCard
+              token={topToken}
+              amount={topTokenAmount}
+              setAmount={setTopTokenAmount}
+            />
+            <div className="w-full  flex flex-row items-center justify-center h-2 pt-2">
+              <ProvideLiquidityMiddleButton />
+            </div>
+            <LiquidityTokenCard
+              token={bottomToken}
+              amount={bottomTokenAmount}
+              setAmount={setBottomTokenAmount}
+            />
+            {isConnected ? (
+              <Button
+                className="w-full text-base mt-4"
+                size={"lg"}
+                onClick={handleAddLiquidity}
+              >
+                Add
+              </Button>
+            ) : (
+              <ConnectButton size={"lg"} className="w-full text-base mt-4" />
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="remove" className="mt-4">
+          <Card className="w-full p-4">
+            <h2 className="text-lg font-semibold">Remove Liquidity</h2>
+            <p className="text-sm text-gray-600">
+              Trade in your DONUT-LP tokens to receive your underlying assets
+            </p>
+
+            <div className="flex items-center gap-2 my-4">
+              <PercentageInput
+                value={inputPercentage}
+                onChange={handleInputChange}
+              />
+              <Slider
+                value={selectedPercentage}
+                max={100}
+                step={1}
+                onValueChange={handleSliderChange}
+              />
+            </div>
+
+            <div className="flex justify-between">
+              {["0", "25", "50", "75", "100"].map((val) => (
+                <Button
+                  key={val}
+                  variant="ghost"
+                  onClick={() => handlePresetPercentageClick(Number(val))}
+                  className={`px-2 py-1 rounded-md text-sm ${
+                    selectedPercentage[0] === Number(val)
+                      ? "bg-blue-500 text-white"
+                      : "bg-transparent text-gray-300"
+                  }`}
+                >
+                  {val === "100" ? "MAX" : `${val}%`}
+                </Button>
+              ))}
+            </div>
+          </Card>
+          {isConnected ? (
+              <Button
+                className="w-full text-base mt-4"
+                size={"lg"}
+                onClick={handleRemoveLiquidity}
+              >
+                Remove
+              </Button>
+            ) : (
+              <ConnectButton size={"lg"} className="w-full text-base mt-4" />
+            )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

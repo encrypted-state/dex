@@ -16,7 +16,7 @@ const Liquidity = () => {
       >
         ← Back to Pools
       </button>
-      <h1 className="font-semibold text-2xl mb-2 text-center">Add Liquidity</h1>
+      <h1 className="font-semibold text-2xl mb-2 text-center">Liquidity Management</h1>
       <LiquidityProvision />
     </>
   );
