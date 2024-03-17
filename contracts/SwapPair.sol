@@ -11,6 +11,7 @@ import "./libraries/Math.sol";
 contract SwapPair is Permissioned, FHERC20{
 
     uint16 public constant MINIMUM_LIQUIDITY = 1000;
+    euint16 private ZERO = FHE.asEuint16(0);
 
     address public factory;
 
@@ -48,7 +49,7 @@ contract SwapPair is Permissioned, FHERC20{
         euint16 amount0 = _amount0;
         euint16 amount1 = _amount1;
         
-        ebool isInitialLiquidity = FHE.eq(totalEncryptedSupply, FHE.asEuint16(0));
+        ebool isInitialLiquidity = FHE.eq(totalEncryptedSupply, ZERO);
 
         liquidity = FHE.select(
             isInitialLiquidity, 
@@ -153,9 +154,9 @@ contract SwapPair is Permissioned, FHERC20{
 
     function getRatios(euint16 amountADesired, euint16 amountBDesired) external view returns (euint16 amountBOptimal, euint16 amountAOptimal) {
         (euint16 _reserve0, euint16 _reserve1) = getReserves();
-         ebool isNotZero = FHE.or(reserve0.ne(FHE.asEuint16(0)), reserve1.ne(FHE.asEuint16(0)));
-        amountBOptimal = FHE.select(isNotZero, FHE.div(FHE.mul(_reserve1, amountADesired), _reserve0), FHE.asEuint16(0));
-        amountAOptimal = FHE.select(isNotZero, FHE.div(FHE.mul(_reserve0, amountBDesired), _reserve1), FHE.asEuint16(0));
+         ebool isNotZero = FHE.or(reserve0.ne(ZERO), reserve1.ne(ZERO));
+        amountBOptimal = FHE.select(isNotZero, FHE.div(FHE.mul(_reserve1, amountADesired), _reserve0), ZERO);
+        amountAOptimal = FHE.select(isNotZero, FHE.div(FHE.mul(_reserve0, amountBDesired), _reserve1), ZERO);
     }
 
     function getAmountOut(euint16 amountIn, address tokenIn) external view returns(euint16 amountOut) {
