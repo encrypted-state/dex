@@ -100,6 +100,12 @@ const config = {
             `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="none"><circle fill="${value}" id="pattern-circle" cx="10" cy="10" r="1.6257413380501518"></circle></svg>`
           )}")`,
         }),
+        "bg-donut": (value: any) => ({
+          backgroundImage: `url("${svgToDataUri(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8.12 8.82"><defs><style>.cls-1{fill:none;stroke:${value};stroke-width:.6px;}</style></defs><g><path class="cls-1" d="m.26,1.74c.07-.61.48-1.26.92-1.44.44-.18.75.17.68.78-.07.61-.48,1.26-.92,1.44-.44.18-.75-.16-.68-.78"/></g></svg>`
+          )}")`,
+          backgroundSize: '10px 10px'
+        }),           
       },
       { values: flattenColorPalette(theme("backgroundColor")), type: "color" }
     );

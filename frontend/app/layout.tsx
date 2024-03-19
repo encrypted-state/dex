@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Web3Provider>
-        <body className={`${inter.className} dark:bg-black bg-white dark:bg-dot-white/[0.2] bg-dot-black/[0.2]`}>
+        <body className={`${inter.className} dark:bg-black bg-white dark:bg-donut-white/[0.2] bg-donut-black/[0.2]`}>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
