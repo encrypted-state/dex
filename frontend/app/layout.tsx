@@ -20,18 +20,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Web3Provider>
-        <body className={inter.className}>
+        <body className={`${inter.className} dark:bg-black bg-white dark:bg-dot-white/[0.2] bg-dot-black/[0.2]`}>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >
+             <div className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
             <Navbar />
-            <main className="w-full max-w-[800px]  flex flex-col  items-center mx-auto">
+            <main className="relative z-10 w-full max-w-[800px] flex flex-col items-center mx-auto">
               {children}
             </main>
-            <Toaster position="top-center" duration={5000} richColors/>
+            <Toaster position="top-center" duration={5000} richColors />
           </ThemeProvider>
         </body>
       </Web3Provider>

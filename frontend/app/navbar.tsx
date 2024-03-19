@@ -18,7 +18,7 @@ const Navbar = () => {
           <NavigationMenuItem className="ml-2 mr-2">
             <NavigationMenuLink href="/">
               <Image
-                className="relative transform duration-150 hover:scale-110 hover:-rotate-1"
+                className="relative transform duration-150 hover:scale-110 hover:rotate-6"
                 src="/donut-logo.png"
                 alt="Donut Exchange Logo"
                 width={65}
@@ -30,7 +30,7 @@ const Navbar = () => {
           <NavigationMenuItem>
             <NavigationMenuLink
               href={"/swap"}
-              className={navigationMenuTriggerStyle()}
+              className={`${navigationMenuTriggerStyle()} hover:scale-110 transition-transform`}
             >
               Swap
             </NavigationMenuLink>
@@ -38,7 +38,7 @@ const Navbar = () => {
           <NavigationMenuItem>
             <NavigationMenuLink
               href={"/liquidity"}
-              className={navigationMenuTriggerStyle()}
+              className={`${navigationMenuTriggerStyle()} hover:scale-110 transition-transform`}
             >
               Liquidity
             </NavigationMenuLink>
@@ -46,7 +46,7 @@ const Navbar = () => {
           <NavigationMenuItem>
             <NavigationMenuLink
               href="/faucet"
-              className={navigationMenuTriggerStyle()}
+              className={`${navigationMenuTriggerStyle()} hover:scale-110 transition-transform`}
             >
               Faucet
             </NavigationMenuLink>
@@ -55,7 +55,9 @@ const Navbar = () => {
       </NavigationMenu>
       <div className="gap-2 flex justify-normal">
         <ModeToggle />
-        <ConnectButton />
+        <div className="z-10">
+          <ConnectButton />
+        </div>
       </div>
     </div>
   );
