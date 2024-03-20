@@ -2,6 +2,7 @@
 
 "use client";
 import { Button } from "@/app/components/ui/button";
+import MagicButton from "@/app/components/ui/magic-button";
 import {
   Card,
   CardContent,
@@ -320,13 +321,13 @@ const MainButton = ({
   return (
     <>
       {isConnected ? (
-        <Button
-          className="w-full text-base mt-1"
+        <MagicButton
+          className="w-full text-base"
           size={"lg"}
           onClick={type === "swap" ? handleSwap : handleAddLiquidity}
         >
           {type === "swap" ? "Swap" : "Add"}
-        </Button>
+        </MagicButton>
       ) : (
         <ConnectButton size={"lg"} className="w-full text-base mt-1" />
       )}
