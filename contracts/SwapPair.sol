@@ -1,33 +1,32 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import "@fhenixprotocol/contracts/FHE.sol";
+import {FHE, euint16, ebool} from "@fhenixprotocol/contracts/FHE.sol";
 import {Permissioned, Permission} from "@fhenixprotocol/contracts/access/Permissioned.sol";
-import { FHE } from "@fhenixprotocol/contracts/FHE.sol";
-import { FHERC20 } from "./FHERC20.sol";
-import { IFHERC20 } from "./interfaces/IFHERC20.sol";
-import "./libraries/Math.sol";
+import {FHERC20} from "./FHERC20.sol";
+import {IFHERC20} from "./interfaces/IFHERC20.sol";
+import {EpochManager} from "./EpochManager.sol";
 
-contract SwapPair is Permissioned, FHERC20{
+contract SwapPair is Permissioned, FHERC20 {
 
     uint16 public constant MINIMUM_LIQUIDITY = 1000;
     euint16 private ZERO = FHE.asEuint16(0);
 
     address public factory;
+    EpochManager public epochManager;
 
     FHERC20 public token0;
     FHERC20 public token1;
-
     euint16 internal reserve0;
     euint16 internal reserve1;
 
     event Mint(address indexed sender, euint16 amount0, euint16 amount1);
     event Burn(address indexed sender, euint16 amount0, euint16 amount1, address indexed to);
-    event Swap(address indexed sender, euint16 amount0Out, euint16 amount1Out, address indexed to);
+    event Swap(address indexed sender, euint16 amountOut, address indexed to);
 
-    constructor() FHERC20("Liquidity Provider Token", "LP") {
+    constructor(EpochManager _epochManager) FHERC20("Donut Liquidity Provider", "DLP") {
         factory = msg.sender;
-
+        epochManager = _epochManager;
     }
 
     function initialize(FHERC20 _token0, FHERC20 _token1) external {
@@ -41,11 +40,9 @@ contract SwapPair is Permissioned, FHERC20{
         token1 = FHERC20(_token1);
     }
 
-    /// @notice not returning liquidity amount for privacy 
     function mint(address to, euint16 _amount0, euint16 _amount1) external  returns(euint16 liquidity){
         (euint16 _reserve0, euint16 _reserve1) = getReserves();
 
-   
         euint16 amount0 = _amount0;
         euint16 amount1 = _amount1;
         
@@ -65,8 +62,7 @@ contract SwapPair is Permissioned, FHERC20{
         mintEncryptedTo(to, liquidity);
         _update(_reserve0 + amount0, _reserve1 + amount1);
 
-
-        // emit Mint(msg.sender, amount0, amount1);
+        emit Mint(msg.sender, amount0, amount1);
     }
 
     function burn(address to, euint16 liquidity) external {
@@ -77,75 +73,42 @@ contract SwapPair is Permissioned, FHERC20{
         euint16 amount1 = FHE.div(FHE.mul(liquidity, _reserve0), _totalEncryptedSupply);
 
         // FHE.req(FHE.and(FHE.gt(amount0, FHE.asEuint16(0)), FHE.lt(amount1, FHE.asEuint16(0))));
-        // can we pass in liquidity like this ?
         burnEncryptedTo(to, liquidity);
         token0.transferEncrypted(to, amount0);
         token1.transferEncrypted(to, amount1);
         _update(reserve0 - amount0, _reserve1 - amount1);
-        // emit Burn(msg.sender, amount0, amount1, to);   
+
+        emit Burn(msg.sender, amount0, amount1, to);   
     }
 
-    function swap(euint16 amountOut, address to, bool istoken1Out, euint16 amountIn) external {
-        // Ensure at least one output amount is non-zero
-
-        // LEAKS
-        // FHE.req(
-        //     FHE.or(
-        //         FHE.ne(amount0Out, FHE.asEuint16(0)),
-        //         FHE.ne(amount1Out, FHE.asEuint16(0))
-        //     )
-        // ); 
-        
+    /// @dev Ensure at least one output amount is non-zero in router
+    /// @dev Ensure output amounts are less than reserves in router 
+    function swap(euint16 amountOut, address to, bool isToken1Out, euint16 amountIn) external {
         (euint16 _reserve0, euint16 _reserve1) = getReserves();
 
-        // LEAKS and check already made on RouterLibrary
-        // FHE.req(FHE.and(FHE.lt(amount0Out, _reserve0), FHE.lt(amount1Out, _reserve1)));  // Ensure output amounts are less than reserves
-
-        // Optimistically transfering tokens (can be moved down if needed)
-
-        if (istoken1Out) {
-        token0.transferEncrypted(to, amountOut); 
-        _update( _reserve0 + amountIn , _reserve1 - amountOut);
+        // Optimistically transfering tokens 
+        if (isToken1Out) {
+            token0.transferEncrypted(to, amountOut); 
+            _update( _reserve0 + amountIn , _reserve1 - amountOut);
         } else{
-        token1.transferEncrypted(to, amountOut);
-        _update( _reserve0 - amountOut , _reserve1 + amountIn);
+            token1.transferEncrypted(to, amountOut);
+            _update( _reserve0 - amountOut , _reserve1 + amountIn);
+        }  
 
-        }
+        // Enforce constant product invariant (k = x * y)
+        euint16 balance0 = token0.balanceOfEncrypted(address(this));
+        euint16 balance1 = token1.balanceOfEncrypted(address(this));
+        euint16 productBefore = FHE.mul(_reserve0, _reserve1);
+        euint16 productAfter = FHE.mul(balance0, balance1);
+        FHE.req(FHE.gte(productAfter, productBefore)); 
 
+        // List swap for batching
+        epochManager.recordSwap(address(this), amountIn, amountOut, isToken1Out);
+    
+        // Check if the current epoch needs to be settled
+        epochManager.settleCurrentEpoch();
 
-
-    //    // Fetch current balances
-    //     euint16 balance0 = IFHERC20(token0).balanceOfEncrypted(address(this));
-    //     euint16 balance1 = IFHERC20(token1).balanceOfEncrypted(address(this));   
-
-        // // Adjust for output amounts
-        // balance0 = FHE.sub(balance0, amount0Out);
-        // balance1 = FHE.sub(balance1, amount1Out);
-
-        // Calculate input amounts
-        // euint16 amount0In = FHE.select(
-        //     FHE.gt(balance0, FHE.sub(_reserve0, amount0Out)),
-        //     FHE.sub(balance0, FHE.sub(_reserve0, amount0Out)),
-        //     FHE.asEuint16(0)
-        // );
-        // euint16 amount1In = FHE.select(
-        //     FHE.gt(balance1, FHE.sub(_reserve1, amount1Out)),
-        //     FHE.sub(balance1, FHE.sub(_reserve1, amount1Out)),
-        //     FHE.asEuint16(0)
-        // );
-
-        // FHE.req(FHE.or(FHE.gt(amount0In, FHE.asEuint16(0)), FHE.gt(amount1In, FHE.asEuint16(0)))); // Ensure at least one input amount is non-zero
-
-        // Enforce the invariant 
-        // euint16 productBefore = FHE.mul(_reserve0, _reserve1);
-        // euint16 productAfter = FHE.mul(balance0, balance1);
-
-        // FHE.req(FHE.gte(productAfter, productBefore));  // K = reserve0 * reserve1 can only increase after the swap
-
-        // Update reserves
-
-        // Emit an event with ciphertext values (still thinking about this)
-        // emit Swap(msg.sender, amount0Out, amount1Out, to);
+        emit Swap(msg.sender, amountOut, to);
     }
 
     function getReserves() internal view returns (euint16, euint16) {
@@ -166,7 +129,6 @@ contract SwapPair is Permissioned, FHERC20{
     }
 
 
-    // balances are not used, adjust as needed
     function _update(euint16 _reserve0, euint16 _reserve1) private {
         reserve0 = _reserve0;
         reserve1 = _reserve1;
